@@ -71,7 +71,7 @@ export default function LandingPage() {
   ], [debouncedNavigate]);
 
   return (
-    <div className="relative min-h-screen bg-gray-50 overflow-hidden">
+    <div className="relative min-h-screen bg-gray-50 overflow-x-hidden">
       {/* Animated Background Elements */}
       <div className="fixed inset-0 overflow-hidden pointer-events-none">
         {/* Animated gradient orbs - soft colors for light background */}
@@ -80,37 +80,88 @@ export default function LandingPage() {
         <div className="absolute bottom-0 left-1/2 w-96 h-96 bg-red-100 rounded-full mix-blend-multiply filter blur-3xl opacity-25 animate-blob animation-delay-4000" />
       </div>
 
-      {/* Content */}
-      <div className={`relative z-10 min-h-screen flex items-center justify-center p-4 sm:p-6 transition-opacity duration-1000 ${isVisible ? 'opacity-100' : 'opacity-0'}`}>
-        <div className="max-w-5xl w-full">
-          {/* Hero Header */}
-          <div className="text-center mb-16 sm:mb-20">
-            {/* VMS Logo with Red-Blue Stripe Accent */}
-            <div className="inline-block mb-6 animate-fade-in-up">
-              <div className="relative">
-                <div className="text-6xl sm:text-7xl font-bold bg-gradient-to-r from-red-600 via-red-500 to-blue-600 bg-clip-text text-transparent drop-shadow-lg">
-                  VMS
-                </div>
-                {/* Stripe accent under logo */}
-                <div className="absolute -bottom-3 left-0 right-0 h-1 bg-gradient-to-r from-red-500 to-blue-500 rounded-full" />
+      {/* Hero Section - Full Screen */}
+      <section className={`relative z-10 min-h-screen flex items-center justify-center p-4 sm:p-6 transition-opacity duration-1000 ${isVisible ? 'opacity-100' : 'opacity-0'}`}>
+        <div className="max-w-4xl w-full text-center">
+          {/* VMS Logo with Red-Blue Stripe Accent */}
+          <div className="mb-8 animate-fade-in-up">
+            <div className="relative inline-block">
+              <div className="text-7xl sm:text-8xl font-bold bg-gradient-to-r from-red-600 via-red-500 to-blue-600 bg-clip-text text-transparent drop-shadow-lg">
+                VMS
+              </div>
+              {/* Stripe accent under logo */}
+              <div className="absolute -bottom-4 left-0 right-0 h-2 bg-gradient-to-r from-red-500 to-blue-500 rounded-full" />
+            </div>
+          </div>
+
+          {/* Main Title */}
+          <h1 className="text-4xl sm:text-6xl font-bold text-slate-900 mb-6 leading-tight drop-shadow-lg animate-fade-in-up animation-delay-200">
+            Visitor Management System
+          </h1>
+
+          {/* Project Description */}
+          <p className="text-lg sm:text-xl text-slate-700 max-w-3xl mx-auto leading-relaxed mb-8 animate-fade-in-up animation-delay-400">
+            Streamline your workplace visitor experience with our comprehensive management solution.
+            Welcome guests efficiently, maintain security, and keep track of everyone on your premises.
+          </p>
+
+          {/* Service Description */}
+          <div className="bg-white/80 backdrop-blur-sm border border-gray-200 rounded-2xl p-8 mb-12 animate-fade-in-up animation-delay-600 shadow-lg relative overflow-hidden">
+            {/* Stripe accent on left */}
+            <div className="absolute left-0 top-0 bottom-0 w-1 bg-gradient-to-b from-red-500 via-purple-500 to-blue-500" />
+
+            <h2 className="text-2xl font-bold text-slate-900 mb-4">What We Do</h2>
+            <p className="text-slate-700 leading-relaxed mb-6">
+              Our Visitor Management System provides a seamless way to handle guest check-ins,
+              employee management, and location administration. Whether you're welcoming a single
+              visitor or managing multiple office locations, VMS makes it simple and secure.
+            </p>
+
+            <div className="grid sm:grid-cols-3 gap-4 text-sm">
+              <div className="flex items-center gap-3">
+                <span className="text-red-500 text-2xl">🏢</span>
+                <span className="font-semibold text-slate-900">Multi-Location Support</span>
+              </div>
+              <div className="flex items-center gap-3">
+                <span className="text-blue-500 text-2xl">📊</span>
+                <span className="font-semibold text-slate-900">Real-Time Analytics</span>
+              </div>
+              <div className="flex items-center gap-3">
+                <span className="text-red-400 text-2xl">🔒</span>
+                <span className="font-semibold text-slate-900">Secure & Compliant</span>
               </div>
             </div>
+          </div>
 
-            {/* Main Title */}
-            <h1 className="text-3xl sm:text-5xl font-bold text-slate-900 mb-4 leading-tight drop-shadow-lg animate-fade-in-up animation-delay-200">
-              Keep Your Visitors Welcome
-            </h1>
+          {/* Scroll Indicator */}
+          <div className="animate-fade-in-up animation-delay-800">
+            <p className="text-slate-600 mb-4">Scroll down to get started</p>
+            <div className="flex justify-center">
+              <div className="w-6 h-10 border-2 border-slate-400 rounded-full flex justify-center">
+                <div className="w-1 h-3 bg-slate-400 rounded-full mt-2 animate-bounce"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
 
-            {/* Subtitle */}
-            <p className="text-base sm:text-lg text-slate-700 max-w-2xl mx-auto leading-relaxed mb-12 animate-fade-in-up animation-delay-400">
-              A simple, friendly way to welcome and manage visitors at your location. Real-time check-ins, no hassle.
+      {/* Login Section - Below Scroll */}
+      <section className="relative z-10 bg-white py-20">
+        <div className="max-w-5xl mx-auto px-4 sm:px-6">
+          {/* Section Header */}
+          <div className="text-center mb-16">
+            <h2 className="text-3xl sm:text-4xl font-bold text-slate-900 mb-4">
+              Choose Your Access
+            </h2>
+            <p className="text-lg text-slate-600">
+              Select how you'd like to use the Visitor Management System
             </p>
           </div>
 
           {/* Role Selection Cards */}
-          <div className="grid md:grid-cols-2 gap-6 lg:gap-8 mb-12 animate-fade-in-up animation-delay-600">
+          <div className="grid md:grid-cols-2 gap-6 lg:gap-8 mb-16">
             {cardsData.map((card) => (
-              <RoleCard 
+              <RoleCard
                 key={card.id}
                 card={card}
                 isDisabled={false}
@@ -119,10 +170,10 @@ export default function LandingPage() {
           </div>
 
           {/* Trust Section with Red-Blue Stripe Accent */}
-          <div className="bg-white border border-gray-200 rounded-2xl p-8 mb-12 animate-fade-in-up animation-delay-800 relative overflow-hidden shadow-md">
+          <div className="bg-gray-50 border border-gray-200 rounded-2xl p-8 relative overflow-hidden shadow-md">
             {/* Stripe accent on left */}
             <div className="absolute left-0 top-0 bottom-0 w-1 bg-gradient-to-b from-red-500 via-purple-500 to-blue-500" />
-            
+
             <h3 className="text-slate-900 font-semibold mb-6 text-lg">
               Why teams love VMS 💙
             </h3>
@@ -152,14 +203,14 @@ export default function LandingPage() {
           </div>
 
           {/* Footer Section */}
-          <div className="text-center border-t border-gray-300 pt-8 animate-fade-in-up animation-delay-1000">
+          <div className="text-center border-t border-gray-300 pt-12 mt-16">
             <p className="text-slate-700 mb-3">
               Questions? <a href="#" className="text-red-600 hover:text-red-700 font-semibold transition-colors">Reach out to us</a> — we're here to help
             </p>
             <p className="text-xs text-slate-500">Made with care for real teams</p>
           </div>
         </div>
-      </div>
+      </section>
     </div>
   );
 }
