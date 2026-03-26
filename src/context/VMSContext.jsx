@@ -26,12 +26,14 @@ export function VMSProvider({ children }) {
   const [locations, setLocations] = useState([]);
   const [employees, setEmployees] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [loadError, setLoadError] = useState('');
 
   useEffect(() => {
     let isMounted = true;
 
     const loadData = async () => {
       setIsLoading(true);
+      setLoadError('');
 
       try {
         const nextLocations = await locationsApi.getAll();
@@ -50,6 +52,7 @@ export function VMSProvider({ children }) {
         if (!isMounted) return;
         setLocations([]);
         setEmployees([]);
+        setLoadError(error.message || 'Unable to load data from the backend.');
       } finally {
         if (isMounted) setIsLoading(false);
       }
@@ -109,6 +112,7 @@ export function VMSProvider({ children }) {
       locations,
       employees,
       isLoading,
+      loadError,
       setLocations,
       setEmployees,
       addLocation,
@@ -122,6 +126,7 @@ export function VMSProvider({ children }) {
       locations,
       employees,
       isLoading,
+      loadError,
       addLocation,
       updateLocation,
       deleteLocation,

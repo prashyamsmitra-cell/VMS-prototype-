@@ -6,60 +6,52 @@ import Button from '../components/Button';
 
 export default function VisitorOfficeSelect() {
   const navigate = useNavigate();
-  const { locations } = useVMS();
+  const { locations, isLoading, loadError } = useVMS();
   const { showToast } = useToast();
 
   const [selectedCountry, setSelectedCountry] = useState('');
   const [selectedCity, setSelectedCity] = useState('');
 
-  // Get unique countries
-  const countries = useMemo(() => {
-    const unique = [...new Set(locations.map((loc) => loc.country))].sort();
-    return unique;
-  }, [locations]);
+  const countries = useMemo(
+    () => [...new Set(locations.map((location) => location.country).filter(Boolean))].sort(),
+    [locations],
+  );
 
-  // Get cities for selected country
   const cities = useMemo(() => {
     if (!selectedCountry) return [];
-    const unique = [
+    return [
       ...new Set(
         locations
-          .filter((loc) => loc.country === selectedCountry)
-          .map((loc) => loc.city),
+          .filter((location) => location.country === selectedCountry)
+          .map((location) => location.city),
       ),
     ].sort();
-    return unique;
   }, [locations, selectedCountry]);
 
-  // Get offices for selected country and city
   const filteredLocations = useMemo(() => {
     let filtered = locations;
     if (selectedCountry) {
-      filtered = filtered.filter((loc) => loc.country === selectedCountry);
+      filtered = filtered.filter((location) => location.country === selectedCountry);
     }
     if (selectedCity) {
-      filtered = filtered.filter((loc) => loc.city === selectedCity);
+      filtered = filtered.filter((location) => location.city === selectedCity);
     }
     return filtered;
   }, [locations, selectedCountry, selectedCity]);
 
-  const handleSelectLocation = useCallback(
-    (location) => {
-      showToast(`Selected ${location.name}. Proceed to check-in.`, 'success');
-      navigate(`/location/${location.id}`);
-    },
-    [navigate, showToast],
-  );
+  const handleSelectLocation = useCallback((location) => {
+    showToast(`Selected ${location.name}. Proceed to check-in.`, 'success');
+    navigate(`/location/${location.id}`);
+  }, [navigate, showToast]);
 
   const handleCountryChange = (country) => {
     setSelectedCountry(country);
-    setSelectedCity(''); // Reset city when country changes
+    setSelectedCity('');
   };
 
   return (
     <div className="min-h-screen bg-gray-50">
       <div className="max-w-6xl mx-auto px-4 py-12">
-        {/* Header */}
         <div className="text-center mb-12">
           <h1 className="text-4xl sm:text-5xl font-bold text-slate-900 mb-3">
             Select Your Office
@@ -69,21 +61,30 @@ export default function VisitorOfficeSelect() {
           </p>
         </div>
 
-        {/* Filters */}
         <div className="bg-white rounded-2xl shadow-md border border-gray-300 p-8 mb-8">
           <h2 className="text-lg font-bold text-slate-900 mb-6">Find Your Office</h2>
+
+          {loadError && (
+            <div className="mb-6 rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
+              Unable to load office locations. Check that `VITE_API_URL` points to your Railway backend and that the backend has seeded locations.
+              <div className="mt-1 text-xs text-red-600">{loadError}</div>
+            </div>
+          )}
+
           <div className="grid md:grid-cols-2 gap-6">
-            {/* Country Selector */}
             <div>
               <label className="block text-sm font-semibold text-slate-900 mb-2">
-                🌍 Country
+                Country
               </label>
               <select
                 value={selectedCountry}
-                onChange={(e) => handleCountryChange(e.target.value)}
-                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500 transition-all duration-200"
+                onChange={(event) => handleCountryChange(event.target.value)}
+                disabled={isLoading || locations.length === 0}
+                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500 transition-all duration-200 disabled:bg-gray-100 disabled:cursor-not-allowed"
               >
-                <option value="">Select a country...</option>
+                <option value="">
+                  {isLoading ? 'Loading countries...' : 'Select a country...'}
+                </option>
                 {countries.map((country) => (
                   <option key={country} value={country}>
                     {country}
@@ -92,14 +93,13 @@ export default function VisitorOfficeSelect() {
               </select>
             </div>
 
-            {/* City Selector */}
             <div>
               <label className="block text-sm font-semibold text-slate-900 mb-2">
-                🏙️ City
+                City
               </label>
               <select
                 value={selectedCity}
-                onChange={(e) => setSelectedCity(e.target.value)}
+                onChange={(event) => setSelectedCity(event.target.value)}
                 disabled={!selectedCountry}
                 className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500 transition-all duration-200 disabled:bg-gray-100 disabled:cursor-not-allowed"
               >
@@ -113,16 +113,14 @@ export default function VisitorOfficeSelect() {
             </div>
           </div>
 
-          {/* Filter Info */}
           {selectedCountry && (
             <div className="mt-4 p-3 bg-blue-50 border border-blue-200 rounded-lg text-sm text-blue-700">
-              📍 Found <span className="font-semibold">{filteredLocations.length}</span> office{filteredLocations.length !== 1 ? 's' : ''}
+              Found <span className="font-semibold">{filteredLocations.length}</span> office{filteredLocations.length !== 1 ? 's' : ''}
               {selectedCity && ` in ${selectedCity}`}
             </div>
           )}
         </div>
 
-        {/* Location Cards */}
         {selectedCountry ? (
           <>
             {filteredLocations.length > 0 ? (
@@ -137,11 +135,11 @@ export default function VisitorOfficeSelect() {
                         {location.name}
                       </h3>
                       <p className="text-sm text-slate-600 mb-4 flex-grow">
-                        📍 {location.address}
+                        {location.address}
                       </p>
                       <div className="flex items-center justify-between text-xs text-slate-500 mb-4">
-                        <span>👥 Capacity: {location.capacity}</span>
-                        <span>🏢 {location.city}</span>
+                        <span>Capacity: {location.capacity}</span>
+                        <span>{location.city}</span>
                       </div>
                       <Button
                         onClick={() => handleSelectLocation(location)}
@@ -157,14 +155,20 @@ export default function VisitorOfficeSelect() {
             ) : (
               <div className="text-center py-12 bg-white rounded-2xl border border-gray-300 shadow-md">
                 <p className="text-slate-500 text-lg mb-2">No offices available</p>
-                <p className="text-slate-400 text-sm">Try selecting a different city or country</p>
+                <p className="text-slate-400 text-sm">Try selecting a different city or country.</p>
               </div>
             )}
           </>
         ) : (
           <div className="text-center py-16 bg-white rounded-2xl border border-gray-300 shadow-md">
-            <p className="text-slate-500 text-lg mb-2">👉 Select a country to get started</p>
-            <p className="text-slate-400 text-sm">Then choose your city to see available offices</p>
+            <p className="text-slate-500 text-lg mb-2">
+              {isLoading ? 'Loading office locations...' : 'Select a country to get started'}
+            </p>
+            <p className="text-slate-400 text-sm">
+              {locations.length === 0 && !isLoading
+                ? 'No locations were returned by the backend yet.'
+                : 'Then choose your city to see available offices'}
+            </p>
           </div>
         )}
       </div>
