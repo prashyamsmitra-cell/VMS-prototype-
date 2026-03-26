@@ -1,8 +1,8 @@
-import { useState, useCallback, useMemo } from 'react';
+import { useState, useCallback, useEffect, useMemo } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useVMS } from '../context/VMSContext';
 import { useToast } from '../context/ToastContext';
-import { useLoginHistory } from '../context/LoginHistoryContext';
+import { employeesApi, visitsApi } from '../services/api';
 import Button from '../components/Button';
 import QRCard from '../components/QRCard';
 import Breadcrumb from '../components/Breadcrumb';
@@ -10,12 +10,10 @@ import Breadcrumb from '../components/Breadcrumb';
 export default function VisitorPage() {
   const { locationId } = useParams();
   const navigate = useNavigate();
-  const { locations, employees } = useVMS();
+  const { locations, isLoading: isLocationsLoading } = useVMS();
   const { showToast } = useToast();
-  const { loginHistory, recordLogin } = useLoginHistory();
 
-  const location = useMemo(() => locations.find((l) => l.id == locationId), [locations, locationId]);
-  const locationEmployees = useMemo(() => employees.filter((e) => e.locationId == locationId), [employees, locationId]);
+  const location = useMemo(() => locations.find((item) => item.id == locationId), [locations, locationId]);
 
   const [formData, setFormData] = useState({
     visitorName: '',
@@ -25,43 +23,52 @@ export default function VisitorPage() {
     purpose: '',
     companyName: '',
   });
-
+  const [locationEmployees, setLocationEmployees] = useState([]);
+  const [recentCheckIns, setRecentCheckIns] = useState([]);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [errors, setErrors] = useState({});
-  const recentCheckIns = useMemo(
-    () =>
-      loginHistory
-        .filter((entry) => entry.userType === 'visitor' && entry.locationName === location.name)
-        .slice(0, 5),
-    [location.name, loginHistory],
-  );
 
-  const todayVisitorCount = useMemo(() => {
-    const today = new Date().toLocaleDateString('en-IN');
-    return loginHistory.filter(
-      (entry) =>
-        entry.userType === 'visitor' &&
-        entry.locationName === location.name &&
-        entry.date === today,
-    ).length;
-  }, [location.name, loginHistory]);
+  const loadLocationEmployees = useCallback(async () => {
+    if (!locationId) return;
 
-  if (!location) {
-    return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <div className="text-center">
-          <p className="text-slate-600 text-lg mb-4">Location not found</p>
-          <Button onClick={() => navigate('/visitor-office-select')}>
-            Back to Locations
-          </Button>
-        </div>
-      </div>
-    );
-  }
+    try {
+      const employees = await employeesApi.getByLocation(locationId);
+      setLocationEmployees(employees);
+    } catch (error) {
+      console.error('Error loading employees for visitor page:', error);
+      setLocationEmployees([]);
+    }
+  }, [locationId]);
 
-  const handleInputChange = useCallback((e) => {
-    const { name, value } = e.target;
+  const loadRecentCheckIns = useCallback(async () => {
+    if (!locationId) return;
+
+    try {
+      const visits = await visitsApi.getRecent(locationId);
+      setRecentCheckIns(
+        visits.map((visit, index) => ({
+          id: `${visit.visitor_name}-${visit.time}-${index}`,
+          name: visit.visitor_name,
+          host: visit.host_name,
+          time: visit.time,
+          purpose: visit.purpose,
+        })),
+      );
+    } catch (error) {
+      console.error('Error loading recent check-ins:', error);
+      setRecentCheckIns([]);
+    }
+  }, [locationId]);
+
+  useEffect(() => {
+    loadLocationEmployees();
+    loadRecentCheckIns();
+  }, [loadLocationEmployees, loadRecentCheckIns]);
+
+  const handleInputChange = useCallback((event) => {
+    const { name, value } = event.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
+
     if (errors[name]) {
       setErrors((prev) => ({ ...prev, [name]: '' }));
     }
@@ -77,24 +84,19 @@ export default function VisitorPage() {
     return newErrors;
   };
 
-  const handleSubmit = useCallback(
-    async (e) => {
-      e.preventDefault();
-      const newErrors = validateForm();
+  const handleSubmit = useCallback(async (event) => {
+    event.preventDefault();
+    const newErrors = validateForm();
 
-      if (Object.keys(newErrors).length > 0) {
-        setErrors(newErrors);
-        return;
-      }
+    if (Object.keys(newErrors).length > 0) {
+      setErrors(newErrors);
+      return;
+    }
 
-      setIsSubmitting(true);
-      await new Promise((resolve) => setTimeout(resolve, 1000));
-
-      recordLogin('visitor', formData.visitorName.trim(), location.name, {
-        hostName: formData.hostName,
-        purpose: formData.purpose.trim(),
-      });
-
+    setIsSubmitting(true);
+    try {
+      await visitsApi.checkIn({ ...formData, locationId });
+      await loadRecentCheckIns();
       showToast('Check-in successful! Welcome.', 'success');
       setErrors({});
       setFormData({
@@ -105,17 +107,39 @@ export default function VisitorPage() {
         purpose: '',
         companyName: '',
       });
+    } catch (error) {
+      showToast(error.message || 'Check-in failed. Please try again.', 'error');
+    } finally {
       setIsSubmitting(false);
-    },
-    [formData, location.name, recordLogin, showToast],
-  );
+    }
+  }, [formData, locationId, loadRecentCheckIns, showToast]);
+
+  if (isLocationsLoading && !location) {
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <p className="text-slate-600 text-lg">Loading location...</p>
+      </div>
+    );
+  }
+
+  if (!location) {
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="text-center">
+          <p className="text-slate-600 text-lg mb-4">Location not found</p>
+          <Button onClick={() => navigate('/visitor-office-select')}>
+            Back to Locations
+          </Button>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <>
       <Breadcrumb />
       <div className="min-h-screen bg-gray-50">
         <div className="max-w-7xl mx-auto px-4 py-8">
-          {/* Header */}
           <div className="mb-8">
             <h1 className="text-3xl sm:text-4xl font-bold text-slate-900 mb-2">
               Visitor Check-in at {location.name}
@@ -123,13 +147,10 @@ export default function VisitorPage() {
             <p className="text-slate-600">Complete the form below to check in</p>
           </div>
 
-          {/* Main Content Grid */}
           <div className="grid lg:grid-cols-3 gap-8">
-            {/* Form Section */}
             <div className="lg:col-span-2">
               <form onSubmit={handleSubmit} className="bg-white rounded-2xl shadow-md border border-gray-200 p-8">
                 <div className="space-y-6">
-                  {/* Visitor Information */}
                   <div>
                     <h3 className="text-lg font-bold text-slate-900 mb-4">Visitor Information</h3>
                     <div className="space-y-4">
@@ -208,7 +229,6 @@ export default function VisitorPage() {
                     </div>
                   </div>
 
-                  {/* Visit Details */}
                   <div>
                     <h3 className="text-lg font-bold text-slate-900 mb-4">Visit Details</h3>
                     <div className="space-y-4">
@@ -225,9 +245,9 @@ export default function VisitorPage() {
                           }`}
                         >
                           <option value="">Select a host...</option>
-                          {locationEmployees.map((emp) => (
-                            <option key={emp.id} value={emp.name}>
-                              {emp.name} ({emp.department})
+                          {locationEmployees.map((employee) => (
+                            <option key={employee.id} value={employee.name}>
+                              {employee.name} ({employee.department})
                             </option>
                           ))}
                         </select>
@@ -257,35 +277,26 @@ export default function VisitorPage() {
                     </div>
                   </div>
 
-                  {/* Submit Button */}
-                  <Button
-                    type="submit"
-                    disabled={isSubmitting}
-                    variant="primary"
-                    className="w-full"
-                  >
+                  <Button type="submit" disabled={isSubmitting} variant="primary" className="w-full">
                     {isSubmitting ? 'Checking in...' : 'Complete Check-in'}
                   </Button>
                 </div>
               </form>
             </div>
 
-            {/* Sidebar */}
             <div className="space-y-6">
-              {/* QR Code Card */}
               <QRCard location={location} />
 
-              {/* Stats */}
               <div className="bg-white rounded-2xl shadow-md border border-gray-200 p-6">
                 <h3 className="font-bold text-slate-900 mb-4">Today's Stats</h3>
                 <div className="space-y-3 text-sm">
                   <div className="flex justify-between items-center">
                     <span className="text-slate-600">Visitors Checked In</span>
-                    <span className="font-bold text-red-600 text-lg">{todayVisitorCount}</span>
+                    <span className="font-bold text-red-600 text-lg">{recentCheckIns.length}</span>
                   </div>
                   <div className="flex justify-between items-center">
                     <span className="text-slate-600">Currently Present</span>
-                    <span className="font-bold text-blue-600 text-lg">8</span>
+                    <span className="font-bold text-blue-600 text-lg">{recentCheckIns.length}</span>
                   </div>
                   <div className="border-t border-gray-200 pt-3 mt-3">
                     <p className="text-xs text-slate-500">Location Capacity: {location.capacity}</p>
@@ -293,19 +304,16 @@ export default function VisitorPage() {
                 </div>
               </div>
 
-              {/* Recent Check-ins */}
               <div className="bg-white rounded-2xl shadow-md border border-gray-200 p-6 max-h-80 overflow-y-auto">
                 <h3 className="font-bold text-slate-900 mb-4">Recent Check-ins</h3>
                 {recentCheckIns.length > 0 ? (
                   <div className="space-y-3">
                     {recentCheckIns.map((checkIn) => (
                       <div key={checkIn.id} className="pb-3 border-b border-gray-200 last:border-0 text-xs">
-                        <p className="font-semibold text-slate-900">{checkIn.userName}</p>
-                        <p className="text-slate-600">Host: {checkIn.hostName || 'Not specified'}</p>
+                        <p className="font-semibold text-slate-900">{checkIn.name}</p>
+                        <p className="text-slate-600">Host: {checkIn.host}</p>
                         <p className="text-slate-500">{checkIn.time}</p>
-                        {checkIn.purpose && (
-                          <p className="text-slate-500">Purpose: {checkIn.purpose}</p>
-                        )}
+                        <p className="text-slate-500">Purpose: {checkIn.purpose}</p>
                       </div>
                     ))}
                   </div>

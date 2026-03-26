@@ -46,7 +46,7 @@ export default function EmployeesPage() {
   };
 
   const handleSubmit = useCallback(
-    (e) => {
+    async (e) => {
       e.preventDefault();
       const newErrors = validateForm();
 
@@ -55,17 +55,21 @@ export default function EmployeesPage() {
         return;
       }
 
-      if (editingId) {
-        updateEmployee(editingId, { ...formData, locationId: parseInt(formData.locationId) });
-        showToast('Employee updated successfully!', 'success');
-        setEditingId(null);
-      } else {
-        addEmployee({ ...formData, locationId: parseInt(formData.locationId) });
-        showToast('Employee added successfully!', 'success');
-      }
+      try {
+        if (editingId) {
+          await updateEmployee(editingId, formData);
+          showToast('Employee updated successfully!', 'success');
+          setEditingId(null);
+        } else {
+          await addEmployee(formData);
+          showToast('Employee added successfully!', 'success');
+        }
 
-      setFormData({ name: '', emailId: '', mobileNumber: '', department: '', locationId: '' });
-      setShowForm(false);
+        setFormData({ name: '', emailId: '', mobileNumber: '', department: '', locationId: '' });
+        setShowForm(false);
+      } catch (error) {
+        showToast(error.message || 'Unable to save employee right now.', 'error');
+      }
     },
     [formData, editingId, addEmployee, updateEmployee, showToast],
   );
@@ -85,8 +89,9 @@ export default function EmployeesPage() {
   const handleDelete = useCallback(
     (id) => {
       if (window.confirm('Are you sure you want to delete this employee?')) {
-        deleteEmployee(id);
-        showToast('Employee deleted successfully!', 'success');
+        deleteEmployee(id)
+          .then(() => showToast('Employee deleted successfully!', 'success'))
+          .catch((error) => showToast(error.message || 'Unable to delete employee.', 'error'));
       }
     },
     [deleteEmployee, showToast],

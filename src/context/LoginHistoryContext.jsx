@@ -1,50 +1,71 @@
 import { createContext, useContext, useState, useCallback, useEffect, useMemo } from 'react';
+import { useAuth } from './AuthContext';
+import { loginHistoryApi } from '../services/api';
 
 const LoginHistoryContext = createContext();
 
-export function LoginHistoryProvider({ children }) {
-  const [loginHistory, setLoginHistory] = useState([]);
+function normalizeHistoryEntry(entry) {
+  return {
+    id: entry.id,
+    userType: entry.userType || entry.user_type,
+    userName: entry.userName || entry.user_name,
+    locationName: entry.locationName || entry.location_name,
+    timestamp: entry.timestamp,
+    date: entry.date,
+    time: entry.time,
+    timezone: entry.timezone,
+  };
+}
 
-  // Load from localStorage on init
-  useEffect(() => {
-    try {
-      const saved = localStorage.getItem('login_history');
-      if (saved) {
-        setLoginHistory(JSON.parse(saved));
-      }
-    } catch (error) {
-      console.error('Error loading login history:', error);
-    }
+export function LoginHistoryProvider({ children }) {
+  const { isLoggedIn, user } = useAuth();
+  const [loginHistory, setLoginHistory] = useState([]);
+  const [isLoading, setIsLoading] = useState(true);
+
+  const refreshHistory = useCallback(async () => {
+    const { history } = await loginHistoryApi.getAll();
+    setLoginHistory(history.map(normalizeHistoryEntry));
   }, []);
 
-  // Save to localStorage whenever it changes
   useEffect(() => {
-    localStorage.setItem('login_history', JSON.stringify(loginHistory));
-  }, [loginHistory]);
+    let isMounted = true;
 
-  const recordLogin = useCallback((userType, userName, locationName = null, details = {}) => {
-    const now = new Date();
-    const entry = {
-      id: Date.now(),
-      userType, // 'visitor' or 'admin'
-      userName,
-      locationName, // Only for visitors
-      hostName: details.hostName || null,
-      purpose: details.purpose || null,
-      timestamp: now.toISOString(),
-      date: now.toLocaleDateString('en-IN'),
-      time: now.toLocaleTimeString('en-IN', {
-        hour: '2-digit',
-        minute: '2-digit',
-        second: '2-digit',
-        hour12: true,
-      }),
-      timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
+    const loadHistory = async () => {
+      if (!isLoggedIn || user?.type !== 'admin') {
+        if (isMounted) {
+          setLoginHistory([]);
+          setIsLoading(false);
+        }
+        return;
+      }
+
+      setIsLoading(true);
+      try {
+        const { history } = await loginHistoryApi.getAll();
+        if (!isMounted) return;
+        setLoginHistory(history.map(normalizeHistoryEntry));
+      } catch (error) {
+        console.error('Error loading login history:', error);
+        if (isMounted) setLoginHistory([]);
+      } finally {
+        if (isMounted) setIsLoading(false);
+      }
     };
 
-    setLoginHistory((prev) => [entry, ...prev]);
-    return entry;
-  }, []);
+    loadHistory();
+
+    return () => {
+      isMounted = false;
+    };
+  }, [isLoggedIn, user?.type]);
+
+  const recordLogin = useCallback(async (userType) => {
+    if (userType !== 'admin') return null;
+
+    await loginHistoryApi.recordAdminLogin(Intl.DateTimeFormat().resolvedOptions().timeZone);
+    await refreshHistory();
+    return null;
+  }, [refreshHistory]);
 
   const getLoginsByDate = useCallback((date) => {
     return loginHistory.filter((entry) => entry.date === date);
@@ -54,19 +75,21 @@ export function LoginHistoryProvider({ children }) {
     return loginHistory.filter((entry) => entry.userType === userType);
   }, [loginHistory]);
 
-  const clearHistory = useCallback(() => {
+  const clearHistory = useCallback(async () => {
+    await loginHistoryApi.clearAll();
     setLoginHistory([]);
   }, []);
 
   const value = useMemo(
     () => ({
       loginHistory,
+      isLoading,
       recordLogin,
       getLoginsByDate,
       getLoginsByUserType,
       clearHistory,
     }),
-    [loginHistory, recordLogin, getLoginsByDate, getLoginsByUserType, clearHistory],
+    [loginHistory, isLoading, recordLogin, getLoginsByDate, getLoginsByUserType, clearHistory],
   );
 
   return <LoginHistoryContext.Provider value={value}>{children}</LoginHistoryContext.Provider>;

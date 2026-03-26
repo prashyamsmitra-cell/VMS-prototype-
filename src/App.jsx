@@ -20,8 +20,8 @@ import LoginHistoryPage from './routes/LoginHistoryPage';
 function App() {
   return (
     <Router>
-      <LoginHistoryProvider>
-        <AuthProvider>
+      <AuthProvider>
+        <LoginHistoryProvider>
           <VMSProvider>
             <ToastProvider>
               <Header />
@@ -73,8 +73,8 @@ function App() {
               </main>
             </ToastProvider>
           </VMSProvider>
-        </AuthProvider>
-      </LoginHistoryProvider>
+        </LoginHistoryProvider>
+      </AuthProvider>
     </Router>
   );
 }

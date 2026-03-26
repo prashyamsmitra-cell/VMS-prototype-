@@ -45,7 +45,7 @@ export default function LocationsPage() {
   };
 
   const handleSubmit = useCallback(
-    (e) => {
+    async (e) => {
       e.preventDefault();
       const newErrors = validateForm();
 
@@ -54,17 +54,29 @@ export default function LocationsPage() {
         return;
       }
 
-      if (editingId) {
-        updateLocation(editingId, { ...formData, capacity: parseInt(formData.capacity) });
-        showToast('Location updated successfully!', 'success');
-        setEditingId(null);
-      } else {
-        addLocation({ ...formData, capacity: parseInt(formData.capacity) });
-        showToast('Location added successfully!', 'success');
-      }
+      try {
+        if (editingId) {
+          await updateLocation(editingId, {
+            ...formData,
+            country: 'India',
+            capacity: parseInt(formData.capacity, 10),
+          });
+          showToast('Location updated successfully!', 'success');
+          setEditingId(null);
+        } else {
+          await addLocation({
+            ...formData,
+            country: 'India',
+            capacity: parseInt(formData.capacity, 10),
+          });
+          showToast('Location added successfully!', 'success');
+        }
 
-      setFormData({ name: '', address: '', city: '', capacity: '' });
-      setShowForm(false);
+        setFormData({ name: '', address: '', city: '', capacity: '' });
+        setShowForm(false);
+      } catch (error) {
+        showToast(error.message || 'Unable to save location right now.', 'error');
+      }
     },
     [formData, editingId, addLocation, updateLocation, showToast],
   );
@@ -83,8 +95,9 @@ export default function LocationsPage() {
   const handleDelete = useCallback(
     (id) => {
       if (window.confirm('Are you sure you want to delete this location?')) {
-        deleteLocation(id);
-        showToast('Location deleted successfully!', 'success');
+        deleteLocation(id)
+          .then(() => showToast('Location deleted successfully!', 'success'))
+          .catch((error) => showToast(error.message || 'Unable to delete location.', 'error'));
       }
     },
     [deleteLocation, showToast],

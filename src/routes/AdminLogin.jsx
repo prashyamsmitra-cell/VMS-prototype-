@@ -16,11 +16,6 @@ export default function AdminLogin() {
   const [isLoading, setIsLoading] = useState(false);
   const [errors, setErrors] = useState({});
 
-  const validCredentials = [
-    { username: 'admin', password: 'admin123', name: 'System Admin' },
-    { username: 'manager', password: 'manager123', name: 'Office Manager' },
-  ];
-
   const handleInputChange = useCallback((e) => {
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
@@ -48,24 +43,17 @@ export default function AdminLogin() {
 
       setIsLoading(true);
 
-      // Simulate API call
-      await new Promise((resolve) => setTimeout(resolve, 800));
-
-      const user = validCredentials.find(
-        (cred) => cred.username === formData.username && cred.password === formData.password,
-      );
-
-      if (user) {
-        loginAsAdmin(user.username, user.name);
-        recordLogin('admin', user.name);
-        showToast(`Welcome back, ${user.name}!`, 'success');
+      try {
+        const admin = await loginAsAdmin(formData.username, formData.password);
+        await recordLogin('admin', admin.username);
+        showToast(`Welcome back, ${admin.username}!`, 'success');
         navigate('/admin');
-      } else {
+      } catch (error) {
         setErrors({ submit: 'Invalid username or password' });
         showToast('Invalid credentials', 'error');
+      } finally {
+        setIsLoading(false);
       }
-
-      setIsLoading(false);
     },
     [formData, loginAsAdmin, recordLogin, showToast, navigate],
   );
@@ -86,9 +74,8 @@ export default function AdminLogin() {
 
           {/* Demo Credentials Info */}
           <div className="bg-blue-50 border border-blue-300 rounded-lg p-3 mb-6 text-xs text-blue-800">
-            <p className="font-semibold mb-1">Demo Credentials:</p>
-            <p>admin / admin123</p>
-            <p>manager / manager123</p>
+            <p className="font-semibold mb-1">Backend Credentials:</p>
+            <p>Use the admin username and password configured in your backend database.</p>
           </div>
 
           {/* Form */}

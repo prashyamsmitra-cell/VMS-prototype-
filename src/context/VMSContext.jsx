@@ -1,101 +1,108 @@
-import { createContext, useContext, useState, useEffect, useMemo } from 'react';
+import { createContext, useContext, useState, useEffect, useMemo, useCallback } from 'react';
+import { useAuth } from './AuthContext';
+import { employeesApi, locationsApi } from '../services/api';
 
 const VMSContext = createContext();
 
+function normalizeLocation(location) {
+  return {
+    ...location,
+    capacity: Number(location.capacity) || 0,
+    qrCode: location.qrCode || location.qr_data || '',
+  };
+}
+
+function normalizeEmployee(employee) {
+  return {
+    ...employee,
+    emailId: employee.emailId || employee.email_id || '',
+    mobileNumber: employee.mobileNumber || employee.mobile_number || '',
+    locationId: employee.locationId || employee.location_id || '',
+  };
+}
+
 export function VMSProvider({ children }) {
+  const { isLoggedIn, user } = useAuth();
   const [locations, setLocations] = useState([]);
   const [employees, setEmployees] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
 
-  // Initialize with mock data from localStorage
   useEffect(() => {
-    try {
-      const savedLocations = localStorage.getItem('vms_locations');
-      const savedEmployees = localStorage.getItem('vms_employees');
+    let isMounted = true;
 
-      // Default mock locations
-      const defaultLocations = [
-        {
-          id: 1,
-          name: 'Mumbai Office',
-          address: '123 Business Park, Mumbai, MH 400001',
-          country: 'India',
-          city: 'Mumbai',
-          capacity: 500,
-          qrCode: 'https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=location:1',
-        },
-        {
-          id: 2,
-          name: 'Bangalore Office',
-          address: '456 Tech Hub, Bangalore, KA 560001',
-          country: 'India',
-          city: 'Bangalore',
-          capacity: 300,
-          qrCode: 'https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=location:2',
-        },
-        {
-          id: 3,
-          name: 'Delhi Office',
-          address: '789 Enterprise Drive, New Delhi, DL 110001',
-          country: 'India',
-          city: 'Delhi',
-          capacity: 400,
-          qrCode: 'https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=location:3',
-        },
-      ];
+    const loadData = async () => {
+      setIsLoading(true);
 
-      // Check if saved data has country field (schema validation)
-      if (savedLocations) {
-        const parsed = JSON.parse(savedLocations);
-        const hasCountryField = parsed.length > 0 && parsed[0].hasOwnProperty('country');
-        if (hasCountryField) {
-          setLocations(parsed);
-        } else {
-          // Schema changed, use new defaults
-          setLocations(defaultLocations);
-          localStorage.setItem('vms_locations', JSON.stringify(defaultLocations));
+      try {
+        const nextLocations = await locationsApi.getAll();
+        if (!isMounted) return;
+        setLocations(nextLocations.map(normalizeLocation));
+
+        if (isLoggedIn && user?.type === 'admin') {
+          const nextEmployees = await employeesApi.getAll();
+          if (!isMounted) return;
+          setEmployees(nextEmployees.map(normalizeEmployee));
+        } else if (isMounted) {
+          setEmployees([]);
         }
-      } else {
-        setLocations(defaultLocations);
-        localStorage.setItem('vms_locations', JSON.stringify(defaultLocations));
+      } catch (error) {
+        console.error('Error loading VMS data:', error);
+        if (!isMounted) return;
+        setLocations([]);
+        setEmployees([]);
+      } finally {
+        if (isMounted) setIsLoading(false);
       }
+    };
 
-      if (savedEmployees) {
-        setEmployees(JSON.parse(savedEmployees));
-      } else {
-        // Default mock employees
-        const defaultEmployees = [
-          { id: 1, name: 'Rajesh Kumar', emailId: 'rajesh@company.com', mobileNumber: '9876543210', department: 'Engineering', locationId: 1 },
-          { id: 2, name: 'Priya Sharma', emailId: 'priya@company.com', mobileNumber: '9876543211', department: 'HR', locationId: 1 },
-          { id: 3, name: 'Amit Patel', emailId: 'amit@company.com', mobileNumber: '9876543212', department: 'Sales', locationId: 2 },
-          { id: 4, name: 'Neha Singh', emailId: 'neha@company.com', mobileNumber: '9876543213', department: 'Marketing', locationId: 2 },
-          { id: 5, name: 'Vikas Gupta', emailId: 'vikas@company.com', mobileNumber: '9876543214', department: 'Engineering', locationId: 3 },
-          { id: 6, name: 'Anjali Verma', emailId: 'anjali@company.com', mobileNumber: '9876543215', department: 'Finance', locationId: 3 },
-        ];
-        setEmployees(defaultEmployees);
-        localStorage.setItem('vms_employees', JSON.stringify(defaultEmployees));
-      }
+    loadData();
 
-      setIsLoading(false);
-    } catch (error) {
-      console.error('Error loading VMS data:', error);
-      setIsLoading(false);
-    }
+    return () => {
+      isMounted = false;
+    };
+  }, [isLoggedIn, user?.type]);
+
+  const addLocation = useCallback(async (location) => {
+    const createdLocation = await locationsApi.create(location);
+    const normalizedLocation = normalizeLocation(createdLocation);
+    setLocations((prev) => [normalizedLocation, ...prev]);
+    return normalizedLocation;
   }, []);
 
-  // Persist locations to localStorage
-  useEffect(() => {
-    if (!isLoading) {
-      localStorage.setItem('vms_locations', JSON.stringify(locations));
-    }
-  }, [locations, isLoading]);
+  const updateLocation = useCallback(async (id, updates) => {
+    const updatedLocation = await locationsApi.update(id, updates);
+    const normalizedLocation = normalizeLocation(updatedLocation);
+    setLocations((prev) => prev.map((location) => (
+      location.id === id ? normalizedLocation : location
+    )));
+    return normalizedLocation;
+  }, []);
 
-  // Persist employees to localStorage
-  useEffect(() => {
-    if (!isLoading) {
-      localStorage.setItem('vms_employees', JSON.stringify(employees));
-    }
-  }, [employees, isLoading]);
+  const deleteLocation = useCallback(async (id) => {
+    await locationsApi.delete(id);
+    setLocations((prev) => prev.filter((location) => location.id !== id));
+  }, []);
+
+  const addEmployee = useCallback(async (employee) => {
+    const createdEmployee = await employeesApi.create(employee);
+    const normalizedEmployee = normalizeEmployee(createdEmployee);
+    setEmployees((prev) => [normalizedEmployee, ...prev]);
+    return normalizedEmployee;
+  }, []);
+
+  const updateEmployee = useCallback(async (id, updates) => {
+    const updatedEmployee = await employeesApi.update(id, updates);
+    const normalizedEmployee = normalizeEmployee(updatedEmployee);
+    setEmployees((prev) => prev.map((employee) => (
+      employee.id === id ? normalizedEmployee : employee
+    )));
+    return normalizedEmployee;
+  }, []);
+
+  const deleteEmployee = useCallback(async (id) => {
+    await employeesApi.delete(id);
+    setEmployees((prev) => prev.filter((employee) => employee.id !== id));
+  }, []);
 
   const value = useMemo(
     () => ({
@@ -104,16 +111,24 @@ export function VMSProvider({ children }) {
       isLoading,
       setLocations,
       setEmployees,
-      addLocation: (location) => setLocations((prev) => [...prev, { ...location, id: Date.now() }]),
-      updateLocation: (id, updates) =>
-        setLocations((prev) => prev.map((loc) => (loc.id === id ? { ...loc, ...updates } : loc))),
-      deleteLocation: (id) => setLocations((prev) => prev.filter((loc) => loc.id !== id)),
-      addEmployee: (employee) => setEmployees((prev) => [...prev, { ...employee, id: Date.now() }]),
-      updateEmployee: (id, updates) =>
-        setEmployees((prev) => prev.map((emp) => (emp.id === id ? { ...emp, ...updates } : emp))),
-      deleteEmployee: (id) => setEmployees((prev) => prev.filter((emp) => emp.id !== id)),
+      addLocation,
+      updateLocation,
+      deleteLocation,
+      addEmployee,
+      updateEmployee,
+      deleteEmployee,
     }),
-    [locations, employees, isLoading],
+    [
+      locations,
+      employees,
+      isLoading,
+      addLocation,
+      updateLocation,
+      deleteLocation,
+      addEmployee,
+      updateEmployee,
+      deleteEmployee,
+    ],
   );
 
   return <VMSContext.Provider value={value}>{children}</VMSContext.Provider>;
