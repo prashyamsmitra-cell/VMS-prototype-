@@ -2,6 +2,7 @@ import { useState, useCallback, useMemo } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useVMS } from '../context/VMSContext';
 import { useToast } from '../context/ToastContext';
+import { useLoginHistory } from '../context/LoginHistoryContext';
 import Button from '../components/Button';
 import QRCard from '../components/QRCard';
 import Breadcrumb from '../components/Breadcrumb';
@@ -11,6 +12,7 @@ export default function VisitorPage() {
   const navigate = useNavigate();
   const { locations, employees } = useVMS();
   const { showToast } = useToast();
+  const { loginHistory, recordLogin } = useLoginHistory();
 
   const location = useMemo(() => locations.find((l) => l.id == locationId), [locations, locationId]);
   const locationEmployees = useMemo(() => employees.filter((e) => e.locationId == locationId), [employees, locationId]);
@@ -26,11 +28,23 @@ export default function VisitorPage() {
 
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [errors, setErrors] = useState({});
-  const [recentCheckIns] = useState([
-    { id: 1, name: 'John Doe', host: 'Rajesh Kumar', time: '10:30 AM', purpose: 'Meeting' },
-    { id: 2, name: 'Jane Smith', host: 'Priya Sharma', time: '09:45 AM', purpose: 'Interview' },
-    { id: 3, name: 'Mike Johnson', host: 'Amit Patel', time: '08:15 AM', purpose: 'Business' },
-  ]);
+  const recentCheckIns = useMemo(
+    () =>
+      loginHistory
+        .filter((entry) => entry.userType === 'visitor' && entry.locationName === location.name)
+        .slice(0, 5),
+    [location.name, loginHistory],
+  );
+
+  const todayVisitorCount = useMemo(() => {
+    const today = new Date().toLocaleDateString('en-IN');
+    return loginHistory.filter(
+      (entry) =>
+        entry.userType === 'visitor' &&
+        entry.locationName === location.name &&
+        entry.date === today,
+    ).length;
+  }, [location.name, loginHistory]);
 
   if (!location) {
     return (
@@ -76,6 +90,11 @@ export default function VisitorPage() {
       setIsSubmitting(true);
       await new Promise((resolve) => setTimeout(resolve, 1000));
 
+      recordLogin('visitor', formData.visitorName.trim(), location.name, {
+        hostName: formData.hostName,
+        purpose: formData.purpose.trim(),
+      });
+
       showToast('Check-in successful! Welcome.', 'success');
       setErrors({});
       setFormData({
@@ -88,7 +107,7 @@ export default function VisitorPage() {
       });
       setIsSubmitting(false);
     },
-    [formData, showToast],
+    [formData, location.name, recordLogin, showToast],
   );
 
   return (
@@ -262,7 +281,7 @@ export default function VisitorPage() {
                 <div className="space-y-3 text-sm">
                   <div className="flex justify-between items-center">
                     <span className="text-slate-600">Visitors Checked In</span>
-                    <span className="font-bold text-red-600 text-lg">24</span>
+                    <span className="font-bold text-red-600 text-lg">{todayVisitorCount}</span>
                   </div>
                   <div className="flex justify-between items-center">
                     <span className="text-slate-600">Currently Present</span>
@@ -277,15 +296,22 @@ export default function VisitorPage() {
               {/* Recent Check-ins */}
               <div className="bg-white rounded-2xl shadow-md border border-gray-200 p-6 max-h-80 overflow-y-auto">
                 <h3 className="font-bold text-slate-900 mb-4">Recent Check-ins</h3>
-                <div className="space-y-3">
-                  {recentCheckIns.map((checkIn) => (
-                    <div key={checkIn.id} className="pb-3 border-b border-gray-200 last:border-0 text-xs">
-                      <p className="font-semibold text-slate-900">{checkIn.name}</p>
-                      <p className="text-slate-600">Host: {checkIn.host}</p>
-                      <p className="text-slate-500">{checkIn.time}</p>
-                    </div>
-                  ))}
-                </div>
+                {recentCheckIns.length > 0 ? (
+                  <div className="space-y-3">
+                    {recentCheckIns.map((checkIn) => (
+                      <div key={checkIn.id} className="pb-3 border-b border-gray-200 last:border-0 text-xs">
+                        <p className="font-semibold text-slate-900">{checkIn.userName}</p>
+                        <p className="text-slate-600">Host: {checkIn.hostName || 'Not specified'}</p>
+                        <p className="text-slate-500">{checkIn.time}</p>
+                        {checkIn.purpose && (
+                          <p className="text-slate-500">Purpose: {checkIn.purpose}</p>
+                        )}
+                      </div>
+                    ))}
+                  </div>
+                ) : (
+                  <p className="text-sm text-slate-500">No recent visitors checked in yet.</p>
+                )}
               </div>
             </div>
           </div>

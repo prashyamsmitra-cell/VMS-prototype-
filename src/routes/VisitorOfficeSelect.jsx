@@ -1,14 +1,12 @@
 import { useCallback, useState, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useVMS } from '../context/VMSContext';
-import { useLoginHistory } from '../context/LoginHistoryContext';
 import { useToast } from '../context/ToastContext';
 import Button from '../components/Button';
 
 export default function VisitorOfficeSelect() {
   const navigate = useNavigate();
   const { locations } = useVMS();
-  const { recordLogin } = useLoginHistory();
   const { showToast } = useToast();
 
   const [selectedCountry, setSelectedCountry] = useState('');
@@ -47,11 +45,10 @@ export default function VisitorOfficeSelect() {
 
   const handleSelectLocation = useCallback(
     (location) => {
-      recordLogin('visitor', 'Visitor', location.name);
       showToast(`Selected ${location.name}. Proceed to check-in.`, 'success');
       navigate(`/location/${location.id}`);
     },
-    [navigate, recordLogin, showToast],
+    [navigate, showToast],
   );
 
   const handleCountryChange = (country) => {

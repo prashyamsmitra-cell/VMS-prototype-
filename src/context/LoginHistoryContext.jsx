@@ -22,13 +22,15 @@ export function LoginHistoryProvider({ children }) {
     localStorage.setItem('login_history', JSON.stringify(loginHistory));
   }, [loginHistory]);
 
-  const recordLogin = useCallback((userType, userName, locationName = null) => {
+  const recordLogin = useCallback((userType, userName, locationName = null, details = {}) => {
     const now = new Date();
     const entry = {
       id: Date.now(),
       userType, // 'visitor' or 'admin'
       userName,
       locationName, // Only for visitors
+      hostName: details.hostName || null,
+      purpose: details.purpose || null,
       timestamp: now.toISOString(),
       date: now.toLocaleDateString('en-IN'),
       time: now.toLocaleTimeString('en-IN', {
