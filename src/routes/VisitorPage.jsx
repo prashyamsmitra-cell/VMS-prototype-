@@ -77,6 +77,7 @@ export default function VisitorPage() {
       await new Promise((resolve) => setTimeout(resolve, 1000));
 
       showToast('Check-in successful! Welcome.', 'success');
+      setErrors({});
       setFormData({
         visitorName: '',
         visitorEmail: '',
@@ -87,7 +88,7 @@ export default function VisitorPage() {
       });
       setIsSubmitting(false);
     },
-    [showToast],
+    [formData, showToast],
   );
 
   return (
