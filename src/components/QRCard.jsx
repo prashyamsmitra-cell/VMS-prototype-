@@ -6,7 +6,8 @@ export default function QRCard({ location }) {
   const [isCopied, setIsCopied] = useState(false);
   const { showToast } = useToast();
 
-  const qrValue = `${window.location.origin}/location/${location.id}`;
+  const publicAppUrl = (import.meta.env.VITE_PUBLIC_APP_URL || window.location.origin).replace(/\/$/, '');
+  const qrValue = `${publicAppUrl}/location/${encodeURIComponent(location.id)}`;
 
   const handleCopyLink = async () => {
     try {

@@ -1,5 +1,24 @@
 const BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000';
 
+async function parseResponse(response) {
+  const contentType = response.headers.get('content-type') || '';
+  const rawBody = await response.text();
+
+  if (!rawBody) {
+    return { data: null, rawBody: '' };
+  }
+
+  if (contentType.includes('application/json')) {
+    try {
+      return { data: JSON.parse(rawBody), rawBody };
+    } catch (error) {
+      throw new Error(`Backend returned invalid JSON (${response.status})`);
+    }
+  }
+
+  return { data: null, rawBody };
+}
+
 async function request(method, path, body = null, requiresAuth = false) {
   const headers = { 'Content-Type': 'application/json' };
 
@@ -22,13 +41,19 @@ async function request(method, path, body = null, requiresAuth = false) {
     throw error;
   }
 
-  const data = await response.json();
+  const { data, rawBody } = await parseResponse(response);
 
   if (!response.ok) {
-    const message = data.errors
+    const message = data?.errors
       ? data.errors.map((error) => error.msg).join(', ')
-      : data.message || `Request failed (${response.status})`;
+      : data?.message
+        || rawBody
+        || `Request failed (${response.status})`;
     throw new Error(message);
+  }
+
+  if (!data) {
+    throw new Error(`Backend returned non-JSON response (${response.status}) from ${BASE_URL}${path}`);
   }
 
   return data;
