@@ -6,6 +6,11 @@ import { useToast } from '../context/ToastContext';
 import Button from '../components/Button';
 import Breadcrumb from '../components/Breadcrumb';
 
+const PROTOTYPE_ADMIN_CREDENTIALS = {
+  username: 'admin',
+  password: 'admin123',
+};
+
 export default function AdminLogin() {
   const navigate = useNavigate();
   const { loginAsAdmin } = useAuth();
@@ -23,6 +28,11 @@ export default function AdminLogin() {
       setErrors((prev) => ({ ...prev, [name]: '' }));
     }
   }, [errors]);
+
+  const fillPrototypeCredentials = useCallback(() => {
+    setFormData(PROTOTYPE_ADMIN_CREDENTIALS);
+    setErrors((prev) => ({ ...prev, username: '', password: '', submit: '' }));
+  }, []);
 
   const validateForm = () => {
     const newErrors = {};
@@ -73,9 +83,21 @@ export default function AdminLogin() {
           </div>
 
           {/* Demo Credentials Info */}
-          <div className="bg-blue-50 border border-blue-300 rounded-lg p-3 mb-6 text-xs text-blue-800">
-            <p className="font-semibold mb-1">Backend Credentials:</p>
-            <p>Use the admin username and password configured in your backend database.</p>
+          <div className="bg-blue-50 border border-blue-300 rounded-lg p-4 mb-6 text-sm text-blue-900">
+            <p className="font-semibold mb-2">Prototype Admin Access</p>
+            <p className="mb-1">
+              User ID: <span className="font-mono font-semibold">{PROTOTYPE_ADMIN_CREDENTIALS.username}</span>
+            </p>
+            <p className="mb-3">
+              Password: <span className="font-mono font-semibold">{PROTOTYPE_ADMIN_CREDENTIALS.password}</span>
+            </p>
+            <button
+              type="button"
+              onClick={fillPrototypeCredentials}
+              className="text-xs font-semibold text-blue-700 hover:text-blue-900 underline underline-offset-2"
+            >
+              Fill these credentials automatically
+            </button>
           </div>
 
           {/* Form */}
