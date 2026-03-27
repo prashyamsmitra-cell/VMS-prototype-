@@ -3,6 +3,11 @@ import { useAuth } from './AuthContext';
 import { loginHistoryApi } from '../services/api';
 
 const LoginHistoryContext = createContext();
+const PROTOTYPE_SESSION_KEY = 'vms_prototype_mode';
+
+function isPrototypeSession() {
+  return localStorage.getItem(PROTOTYPE_SESSION_KEY) === 'true';
+}
 
 function normalizeHistoryEntry(entry) {
   return {
@@ -39,6 +44,14 @@ export function LoginHistoryProvider({ children }) {
         return;
       }
 
+      if (isPrototypeSession()) {
+        if (isMounted) {
+          setLoginHistory([]);
+          setIsLoading(false);
+        }
+        return;
+      }
+
       setIsLoading(true);
       try {
         const { history } = await loginHistoryApi.getAll();
@@ -61,6 +74,7 @@ export function LoginHistoryProvider({ children }) {
 
   const recordLogin = useCallback(async (userType) => {
     if (userType !== 'admin') return null;
+    if (isPrototypeSession()) return null;
 
     await loginHistoryApi.recordAdminLogin(Intl.DateTimeFormat().resolvedOptions().timeZone);
     await refreshHistory();
