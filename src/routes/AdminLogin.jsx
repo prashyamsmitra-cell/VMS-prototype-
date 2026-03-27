@@ -54,13 +54,14 @@ export default function AdminLogin() {
       setIsLoading(true);
 
       try {
-        const admin = await loginAsAdmin(formData.username, formData.password);
+        const admin = await loginAsAdmin(formData.username.trim(), formData.password);
         await recordLogin('admin', admin.username);
         showToast(`Welcome back, ${admin.username}!`, 'success');
         navigate('/admin');
       } catch (error) {
-        setErrors({ submit: 'Invalid username or password' });
-        showToast('Invalid credentials', 'error');
+        const message = error?.message || 'Login failed. Please try again.';
+        setErrors({ submit: message });
+        showToast(message, 'error');
       } finally {
         setIsLoading(false);
       }
