@@ -1,17 +1,4 @@
 const BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000';
-const PROTOTYPE_ADMIN = { id: 'prototype-admin', username: 'admin' };
-const PROTOTYPE_PASSWORD = 'admin123';
-const PROTOTYPE_SESSION_KEY = 'vms_prototype_mode';
-
-function isPrototypeSession() {
-  return localStorage.getItem(PROTOTYPE_SESSION_KEY) === 'true';
-}
-
-function startPrototypeSession() {
-  localStorage.setItem(PROTOTYPE_SESSION_KEY, 'true');
-  localStorage.setItem('vms_token', 'prototype-token');
-  localStorage.setItem('vms_admin', JSON.stringify(PROTOTYPE_ADMIN));
-}
 
 async function request(method, path, body = null, requiresAuth = false) {
   const headers = { 'Content-Type': 'application/json' };
@@ -26,12 +13,11 @@ async function request(method, path, body = null, requiresAuth = false) {
   if (body) config.body = JSON.stringify(body);
 
   let response;
-
   try {
     response = await fetch(`${BASE_URL}${path}`, config);
   } catch (error) {
     if (error instanceof TypeError) {
-      throw new Error('Backend unavailable. Prototype offline mode can still use admin/admin123.');
+      throw new Error('Backend unavailable. Check your deployed API URL and backend health.');
     }
     throw error;
   }
@@ -55,39 +41,20 @@ const del = (path, auth = false) => request('DELETE', path, null, auth);
 
 export const authApi = {
   login: async ({ username, password }) => {
-    try {
-      const response = await post('/api/auth/login', { username, password });
-      localStorage.removeItem(PROTOTYPE_SESSION_KEY);
-      localStorage.setItem('vms_token', response.data.token);
-      localStorage.setItem('vms_admin', JSON.stringify(response.data.admin));
-      return response.data;
-    } catch (error) {
-      if (
-        username.trim() === PROTOTYPE_ADMIN.username &&
-        password === PROTOTYPE_PASSWORD &&
-        /Backend unavailable|Failed to fetch/i.test(error.message)
-      ) {
-        startPrototypeSession();
-        return { token: 'prototype-token', admin: PROTOTYPE_ADMIN };
-      }
-      throw error;
-    }
+    const response = await post('/api/auth/login', { username, password });
+    localStorage.setItem('vms_token', response.data.token);
+    localStorage.setItem('vms_admin', JSON.stringify(response.data.admin));
+    return response.data;
   },
 
-  me: () => {
-    if (isPrototypeSession()) {
-      return Promise.resolve({ admin: PROTOTYPE_ADMIN });
-    }
-    return get('/api/auth/me', true).then((response) => response.data);
-  },
+  me: () => get('/api/auth/me', true).then((response) => response.data),
 
   logout: () => {
-    localStorage.removeItem(PROTOTYPE_SESSION_KEY);
     localStorage.removeItem('vms_token');
     localStorage.removeItem('vms_admin');
   },
 
-  isLoggedIn: () => !!localStorage.getItem('vms_token') || isPrototypeSession(),
+  isLoggedIn: () => !!localStorage.getItem('vms_token'),
 };
 
 export const locationsApi = {
