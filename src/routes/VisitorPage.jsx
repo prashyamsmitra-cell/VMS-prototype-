@@ -138,192 +138,229 @@ export default function VisitorPage() {
   return (
     <>
       <Breadcrumb />
-      <div className="min-h-screen bg-gray-50">
-        <div className="max-w-7xl mx-auto px-4 py-8">
-          <div className="mb-8">
-            <div className="mb-4">
+      <div className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-gray-50">
+        <div className="max-w-7xl mx-auto px-4 py-8 sm:py-12">
+          {/* Header */}
+          <div className="mb-10 sm:mb-12">
+            <div className="mb-6 flex items-center gap-3">
               <Button type="button" variant="ghost" onClick={() => navigate('/visitor-office-select')}>
-                Back to Office Selection
+                ← Back
               </Button>
             </div>
-            <h1 className="text-3xl sm:text-4xl font-bold text-slate-900 mb-2">
-              Visitor Check-in at {location.name}
+            <h1 className="text-3xl sm:text-4xl lg:text-5xl font-bold text-slate-900 mb-3">
+              Check in at <span className="bg-gradient-to-r from-red-600 to-blue-600 bg-clip-text text-transparent">{location.name}</span>
             </h1>
-            <p className="text-slate-600">Complete the form below to check in</p>
+            <p className="text-base sm:text-lg text-slate-600">
+              Welcome! Complete the form below to check in
+            </p>
           </div>
 
-          <div className="grid lg:grid-cols-3 gap-8">
+          {/* Main Grid */}
+          <div className="grid lg:grid-cols-3 gap-6 sm:gap-8">
+            {/* Form Section */}
             <div className="lg:col-span-2">
-              <form onSubmit={handleSubmit} className="bg-white rounded-2xl shadow-md border border-gray-200 p-8">
-                <div className="space-y-6">
-                  <div>
-                    <h3 className="text-lg font-bold text-slate-900 mb-4">Visitor Information</h3>
-                    <div className="space-y-4">
-                      <div>
-                        <label className="block text-sm font-semibold text-slate-900 mb-2">
-                          Full Name *
-                        </label>
-                        <input
-                          type="text"
-                          name="visitorName"
-                          value={formData.visitorName}
-                          onChange={handleInputChange}
-                          placeholder="John Doe"
-                          className={`w-full px-4 py-3 border rounded-lg ${
-                            errors.visitorName ? 'border-red-500' : 'border-gray-300'
-                          }`}
-                        />
-                        {errors.visitorName && (
-                          <p className="text-red-500 text-sm mt-1">{errors.visitorName}</p>
-                        )}
-                      </div>
-
-                      <div className="grid md:grid-cols-2 gap-4">
-                        <div>
-                          <label className="block text-sm font-semibold text-slate-900 mb-2">
-                            Email *
-                          </label>
-                          <input
-                            type="email"
-                            name="visitorEmail"
-                            value={formData.visitorEmail}
-                            onChange={handleInputChange}
-                            placeholder="john@example.com"
-                            className={`w-full px-4 py-3 border rounded-lg ${
-                              errors.visitorEmail ? 'border-red-500' : 'border-gray-300'
-                            }`}
-                          />
-                          {errors.visitorEmail && (
-                            <p className="text-red-500 text-sm mt-1">{errors.visitorEmail}</p>
-                          )}
-                        </div>
-
-                        <div>
-                          <label className="block text-sm font-semibold text-slate-900 mb-2">
-                            Phone *
-                          </label>
-                          <input
-                            type="tel"
-                            name="visitorPhone"
-                            value={formData.visitorPhone}
-                            onChange={handleInputChange}
-                            placeholder="9876543210"
-                            className={`w-full px-4 py-3 border rounded-lg ${
-                              errors.visitorPhone ? 'border-red-500' : 'border-gray-300'
-                            }`}
-                          />
-                          {errors.visitorPhone && (
-                            <p className="text-red-500 text-sm mt-1">{errors.visitorPhone}</p>
-                          )}
-                        </div>
-                      </div>
-
-                      <div>
-                        <label className="block text-sm font-semibold text-slate-900 mb-2">
-                          Company Name
-                        </label>
-                        <input
-                          type="text"
-                          name="companyName"
-                          value={formData.companyName}
-                          onChange={handleInputChange}
-                          placeholder="Your Company (optional)"
-                          className="w-full px-4 py-3 border border-gray-300 rounded-lg"
-                        />
-                      </div>
-                    </div>
+              <form onSubmit={handleSubmit} className="card-base p-6 sm:p-8 space-y-8">
+                {/* Visitor Information Section */}
+                <div>
+                  <div className="flex items-center gap-3 mb-6">
+                    <span className="text-2xl">👤</span>
+                    <h3 className="text-xl font-bold text-slate-900">Visitor Information</h3>
                   </div>
+                  
+                  <div className="space-y-4">
+                    {/* Full Name */}
+                    <div>
+                      <label className="block text-sm font-bold text-slate-900 mb-2.5">
+                        Full Name *
+                      </label>
+                      <input
+                        type="text"
+                        name="visitorName"
+                        value={formData.visitorName}
+                        onChange={handleInputChange}
+                        placeholder="John Doe"
+                        className={`w-full px-4 py-3 border-2 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent transition-all duration-250 font-medium ${
+                          errors.visitorName ? 'border-red-500' : 'border-gray-200 hover:border-gray-300'
+                        }`}
+                      />
+                      {errors.visitorName && (
+                        <p className="text-red-500 text-xs font-semibold mt-1.5">✗ {errors.visitorName}</p>
+                      )}
+                    </div>
 
-                  <div>
-                    <h3 className="text-lg font-bold text-slate-900 mb-4">Visit Details</h3>
-                    <div className="space-y-4">
+                    {/* Email & Phone */}
+                    <div className="grid md:grid-cols-2 gap-4">
                       <div>
-                        <label className="block text-sm font-semibold text-slate-900 mb-2">
-                          Host Name *
+                        <label className="block text-sm font-bold text-slate-900 mb-2.5">
+                          Email *
                         </label>
-                        <select
-                          name="hostName"
-                          value={formData.hostName}
+                        <input
+                          type="email"
+                          name="visitorEmail"
+                          value={formData.visitorEmail}
                           onChange={handleInputChange}
-                          className={`w-full px-4 py-3 border rounded-lg ${
-                            errors.hostName ? 'border-red-500' : 'border-gray-300'
+                          placeholder="john@example.com"
+                          className={`w-full px-4 py-3 border-2 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent transition-all duration-250 font-medium ${
+                            errors.visitorEmail ? 'border-red-500' : 'border-gray-200 hover:border-gray-300'
                           }`}
-                        >
-                          <option value="">Select a host...</option>
-                          {locationEmployees.map((employee) => (
-                            <option key={employee.id} value={employee.name}>
-                              {employee.name} ({employee.department})
-                            </option>
-                          ))}
-                        </select>
-                        {errors.hostName && (
-                          <p className="text-red-500 text-sm mt-1">{errors.hostName}</p>
+                        />
+                        {errors.visitorEmail && (
+                          <p className="text-red-500 text-xs font-semibold mt-1.5">✗ {errors.visitorEmail}</p>
                         )}
                       </div>
 
                       <div>
-                        <label className="block text-sm font-semibold text-slate-900 mb-2">
-                          Purpose of Visit *
+                        <label className="block text-sm font-bold text-slate-900 mb-2.5">
+                          Phone *
                         </label>
                         <input
-                          type="text"
-                          name="purpose"
-                          value={formData.purpose}
+                          type="tel"
+                          name="visitorPhone"
+                          value={formData.visitorPhone}
                           onChange={handleInputChange}
-                          placeholder="E.g., Meeting, Interview, Delivery"
-                          className={`w-full px-4 py-3 border rounded-lg ${
-                            errors.purpose ? 'border-red-500' : 'border-gray-300'
+                          placeholder="9876543210"
+                          className={`w-full px-4 py-3 border-2 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent transition-all duration-250 font-medium ${
+                            errors.visitorPhone ? 'border-red-500' : 'border-gray-200 hover:border-gray-300'
                           }`}
                         />
-                        {errors.purpose && (
-                          <p className="text-red-500 text-sm mt-1">{errors.purpose}</p>
+                        {errors.visitorPhone && (
+                          <p className="text-red-500 text-xs font-semibold mt-1.5">✗ {errors.visitorPhone}</p>
                         )}
                       </div>
                     </div>
-                  </div>
 
-                  <Button type="submit" disabled={isSubmitting} variant="primary" className="w-full">
-                    {isSubmitting ? 'Checking in...' : 'Complete Check-in'}
-                  </Button>
+                    {/* Company Name */}
+                    <div>
+                      <label className="block text-sm font-bold text-slate-900 mb-2.5">
+                        Company Name
+                      </label>
+                      <input
+                        type="text"
+                        name="companyName"
+                        value={formData.companyName}
+                        onChange={handleInputChange}
+                        placeholder="Your Company (optional)"
+                        className="w-full px-4 py-3 border-2 border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent transition-all duration-250 font-medium hover:border-gray-300"
+                      />
+                    </div>
+                  </div>
                 </div>
+
+                {/* Divider */}
+                <div className="border-t border-gray-100" />
+
+                {/* Visit Details Section */}
+                <div>
+                  <div className="flex items-center gap-3 mb-6">
+                    <span className="text-2xl">📝</span>
+                    <h3 className="text-xl font-bold text-slate-900">Visit Details</h3>
+                  </div>
+                  
+                  <div className="space-y-4">
+                    {/* Host Name */}
+                    <div>
+                      <label className="block text-sm font-bold text-slate-900 mb-2.5">
+                        Who are you meeting? *
+                      </label>
+                      <select
+                        name="hostName"
+                        value={formData.hostName}
+                        onChange={handleInputChange}
+                        className={`w-full px-4 py-3 border-2 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent transition-all duration-250 font-medium cursor-pointer ${
+                          errors.hostName ? 'border-red-500' : 'border-gray-200 hover:border-gray-300'
+                        }`}
+                      >
+                        <option value="">Select a host...</option>
+                        {locationEmployees.map((employee) => (
+                          <option key={employee.id} value={employee.name}>
+                            {employee.name} - {employee.department}
+                          </option>
+                        ))}
+                      </select>
+                      {errors.hostName && (
+                        <p className="text-red-500 text-xs font-semibold mt-1.5">✗ {errors.hostName}</p>
+                      )}
+                    </div>
+
+                    {/* Purpose of Visit */}
+                    <div>
+                      <label className="block text-sm font-bold text-slate-900 mb-2.5">
+                        Purpose of Visit *
+                      </label>
+                      <input
+                        type="text"
+                        name="purpose"
+                        value={formData.purpose}
+                        onChange={handleInputChange}
+                        placeholder="E.g., Meeting, Interview, Delivery"
+                        className={`w-full px-4 py-3 border-2 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent transition-all duration-250 font-medium ${
+                          errors.purpose ? 'border-red-500' : 'border-gray-200 hover:border-gray-300'
+                        }`}
+                      />
+                      {errors.purpose && (
+                        <p className="text-red-500 text-xs font-semibold mt-1.5">✗ {errors.purpose}</p>
+                      )}
+                    </div>
+                  </div>
+                </div>
+
+                {/* Submit Button */}
+                <Button type="submit" disabled={isSubmitting} variant="primary" size="lg" className="w-full">
+                  {isSubmitting ? '⏳ Checking in...' : '✓ Complete Check-in'}
+                </Button>
               </form>
             </div>
 
+            {/* Sidebar */}
             <div className="space-y-6">
+              {/* QR Card */}
               <QRCard location={location} />
 
-              <div className="bg-white rounded-2xl shadow-md border border-gray-200 p-6">
-                <h3 className="font-bold text-slate-900 mb-4">Today's Stats</h3>
-                <div className="space-y-3 text-sm">
-                  <div className="flex justify-between items-center">
-                    <span className="text-slate-600">Visitors Checked In</span>
-                    <span className="font-bold text-red-600 text-lg">{recentCheckIns.length}</span>
+              {/* Today's Stats */}
+              <div className="card-base p-6 sm:p-8">
+                <h3 className="font-bold text-slate-900 mb-5 flex items-center gap-2">
+                  <span className="text-xl">📊</span>
+                  Today's Activity
+                </h3>
+                <div className="space-y-4">
+                  <div className="bg-gradient-to-br from-red-50 to-red-100/50 rounded-lg p-4 border border-red-100">
+                    <p className="text-xs text-red-700 font-semibold">Visitors Checked In</p>
+                    <p className="text-3xl font-bold text-red-600 mt-1">{recentCheckIns.length}</p>
                   </div>
-                  <div className="flex justify-between items-center">
-                    <span className="text-slate-600">Currently Present</span>
-                    <span className="font-bold text-blue-600 text-lg">{recentCheckIns.length}</span>
+                  <div className="bg-gradient-to-br from-blue-50 to-blue-100/50 rounded-lg p-4 border border-blue-100">
+                    <p className="text-xs text-blue-700 font-semibold">Currently Present</p>
+                    <p className="text-3xl font-bold text-blue-600 mt-1">{recentCheckIns.length}</p>
                   </div>
-                  <div className="border-t border-gray-200 pt-3 mt-3">
-                    <p className="text-xs text-slate-500">Location Capacity: {location.capacity}</p>
+                  <div className="border-t border-gray-100 pt-4">
+                    <p className="text-xs text-slate-600 font-semibold">Location Capacity</p>
+                    <p className="text-2xl font-bold text-slate-900 mt-1">{location.capacity}</p>
                   </div>
                 </div>
               </div>
 
-              <div className="bg-white rounded-2xl shadow-md border border-gray-200 p-6 max-h-80 overflow-y-auto">
-                <h3 className="font-bold text-slate-900 mb-4">Recent Check-ins</h3>
+              {/* Recent Check-ins */}
+              <div className="card-base p-6 sm:p-8 max-h-96 overflow-y-auto flex flex-col">
+                <h3 className="font-bold text-slate-900 mb-4 flex items-center gap-2 flex-shrink-0">
+                  <span className="text-xl">👥</span>
+                  Recent Visitors
+                </h3>
                 {recentCheckIns.length > 0 ? (
-                  <div className="space-y-3">
+                  <div className="space-y-3 flex-1">
                     {recentCheckIns.map((checkIn) => (
-                      <div key={checkIn.id} className="pb-3 border-b border-gray-200 last:border-0 text-xs">
-                        <p className="font-semibold text-slate-900">{checkIn.name}</p>
-                        <p className="text-slate-600">Host: {checkIn.host}</p>
-                        <p className="text-slate-500">{checkIn.time}</p>
-                        <p className="text-slate-500">Purpose: {checkIn.purpose}</p>
+                      <div key={checkIn.id} className="pb-3 border-b border-gray-100 last:border-0 text-xs">
+                        <p className="font-bold text-slate-900">{checkIn.name}</p>
+                        <p className="text-slate-600 text-xs mt-1">👤 {checkIn.host}</p>
+                        <p className="text-slate-500 text-xs mt-0.5">⏰ {checkIn.time}</p>
+                        <p className="text-slate-500 text-xs mt-0.5">📌 {checkIn.purpose}</p>
                       </div>
                     ))}
                   </div>
                 ) : (
-                  <p className="text-sm text-slate-500">No recent visitors checked in yet.</p>
+                  <div className="text-center py-8 flex-shrink-0">
+                    <div className="text-3xl mb-2">👋</div>
+                    <p className="text-sm text-slate-600">No visitors yet today</p>
+                    <p className="text-xs text-slate-500 mt-1">You'll be the first!</p>
+                  </div>
                 )}
               </div>
             </div>

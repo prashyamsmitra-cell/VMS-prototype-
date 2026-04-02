@@ -75,59 +75,56 @@ export default function LandingPage() {
       {/* Animated Background Elements */}
       <div className="fixed inset-0 overflow-hidden pointer-events-none">
         {/* Animated gradient orbs - soft colors for light background */}
-        <div className="absolute top-0 left-1/4 w-96 h-96 bg-red-200 rounded-full mix-blend-multiply filter blur-3xl opacity-30 animate-blob" />
-        <div className="absolute top-1/3 right-1/4 w-96 h-96 bg-blue-200 rounded-full mix-blend-multiply filter blur-3xl opacity-30 animate-blob animation-delay-2000" />
-        <div className="absolute bottom-0 left-1/2 w-96 h-96 bg-red-100 rounded-full mix-blend-multiply filter blur-3xl opacity-25 animate-blob animation-delay-4000" />
+        <div className="absolute top-0 left-1/4 w-96 h-96 bg-red-200 rounded-full mix-blend-multiply filter blur-3xl opacity-20 animate-blob" />
+        <div className="absolute top-1/3 right-1/4 w-96 h-96 bg-blue-200 rounded-full mix-blend-multiply filter blur-3xl opacity-20 animate-blob animation-delay-2000" />
+        <div className="absolute bottom-0 left-1/2 w-96 h-96 bg-red-100 rounded-full mix-blend-multiply filter blur-3xl opacity-15 animate-blob animation-delay-4000" />
       </div>
 
       {/* Hero Section - Full Screen */}
       <section className={`relative z-10 min-h-screen flex items-center justify-center p-4 sm:p-6 transition-opacity duration-1000 ${isVisible ? 'opacity-100' : 'opacity-0'}`}>
         <div className="max-w-4xl w-full text-center">
           {/* VMS Logo with Red-Blue Stripe Accent */}
-          <div className="mb-8 animate-fade-in-up">
+          <div className="mb-10 sm:mb-12 animate-fade-in-up">
             <div className="relative inline-block">
               <div className="text-7xl sm:text-8xl font-bold bg-gradient-to-r from-red-600 via-red-500 to-blue-600 bg-clip-text text-transparent drop-shadow-lg">
                 VMS
               </div>
               {/* Stripe accent under logo */}
-              <div className="absolute -bottom-4 left-0 right-0 h-2 bg-gradient-to-r from-red-500 to-blue-500 rounded-full" />
+              <div className="absolute -bottom-4 left-1/2 transform -translate-x-1/2 h-1.5 bg-gradient-to-r from-red-500 to-blue-500 rounded-full w-24" />
             </div>
           </div>
 
           {/* Main Title */}
           <h1 className="text-4xl sm:text-6xl font-bold text-slate-900 mb-6 leading-tight drop-shadow-lg animate-fade-in-up animation-delay-200">
-            Visitor Management System
+            Visitor Management<br className="hidden sm:block" /> System
           </h1>
 
           {/* Project Description */}
-          <p className="text-lg sm:text-xl text-slate-700 max-w-3xl mx-auto leading-relaxed mb-8 animate-fade-in-up animation-delay-400">
-            Streamline your workplace visitor experience with our comprehensive management solution.
-            Welcome guests efficiently, maintain security, and keep track of everyone on your premises.
+          <p className="text-base sm:text-lg text-slate-700 max-w-2xl mx-auto leading-relaxed mb-10 animate-fade-in-up animation-delay-400">
+            Streamline your workplace visitor experience with our comprehensive management solution. Welcome guests efficiently, maintain security, and keep track of everyone on your premises.
           </p>
 
           {/* Service Description */}
-          <div className="bg-white/80 backdrop-blur-sm border border-gray-200 rounded-2xl p-8 mb-12 animate-fade-in-up animation-delay-600 shadow-lg relative overflow-hidden">
+          <div className="bg-white/80 backdrop-blur-sm border border-gray-200 rounded-3xl p-6 sm:p-8 mb-12 animate-fade-in-up animation-delay-600 shadow-lg relative overflow-hidden">
             {/* Stripe accent on left */}
             <div className="absolute left-0 top-0 bottom-0 w-1 bg-gradient-to-b from-red-500 via-purple-500 to-blue-500" />
 
-            <h2 className="text-2xl font-bold text-slate-900 mb-4">What We Do</h2>
-            <p className="text-slate-700 leading-relaxed mb-6">
-              Our Visitor Management System provides a seamless way to handle guest check-ins,
-              employee management, and location administration. Whether you're welcoming a single
-              visitor or managing multiple office locations, VMS makes it simple and secure.
+            <h2 className="text-xl sm:text-2xl font-bold text-slate-900 mb-3">What We Offer</h2>
+            <p className="text-slate-700 leading-relaxed mb-6 text-sm sm:text-base">
+              A seamless way to handle guest check-ins, employee management, and location administration. Whether you're welcoming a single visitor or managing multiple office locations, VMS makes it simple and secure.
             </p>
 
-            <div className="grid sm:grid-cols-3 gap-4 text-sm">
-              <div className="flex items-center gap-3">
-                <span className="text-red-500 text-2xl">🏢</span>
+            <div className="grid sm:grid-cols-3 gap-4 text-xs sm:text-sm">
+              <div className="flex items-center gap-3 p-3 rounded-lg hover:bg-gray-50 transition-colors">
+                <span className="text-red-500 text-2xl flex-shrink-0">🏢</span>
                 <span className="font-semibold text-slate-900">Multi-Location Support</span>
               </div>
-              <div className="flex items-center gap-3">
-                <span className="text-blue-500 text-2xl">📊</span>
+              <div className="flex items-center gap-3 p-3 rounded-lg hover:bg-gray-50 transition-colors">
+                <span className="text-blue-500 text-2xl flex-shrink-0">📊</span>
                 <span className="font-semibold text-slate-900">Real-Time Analytics</span>
               </div>
-              <div className="flex items-center gap-3">
-                <span className="text-red-400 text-2xl">🔒</span>
+              <div className="flex items-center gap-3 p-3 rounded-lg hover:bg-gray-50 transition-colors">
+                <span className="text-red-400 text-2xl flex-shrink-0">🔒</span>
                 <span className="font-semibold text-slate-900">Secure & Compliant</span>
               </div>
             </div>
@@ -135,7 +132,7 @@ export default function LandingPage() {
 
           {/* Scroll Indicator */}
           <div className="animate-fade-in-up animation-delay-800">
-            <p className="text-slate-600 mb-4">Scroll down to get started</p>
+            <p className="text-slate-600 mb-4 text-sm">Scroll down to get started</p>
             <div className="flex justify-center">
               <div className="w-6 h-10 border-2 border-slate-400 rounded-full flex justify-center">
                 <div className="w-1 h-3 bg-slate-400 rounded-full mt-2 animate-bounce"></div>
@@ -146,20 +143,20 @@ export default function LandingPage() {
       </section>
 
       {/* Login Section - Below Scroll */}
-      <section className="relative z-10 bg-white py-20">
-        <div className="max-w-5xl mx-auto px-4 sm:px-6">
+      <section className="relative z-10 bg-white py-16 sm:py-24">
+        <div className="max-w-6xl mx-auto px-4 sm:px-6">
           {/* Section Header */}
-          <div className="text-center mb-16">
+          <div className="text-center mb-14 sm:mb-16">
             <h2 className="text-3xl sm:text-4xl font-bold text-slate-900 mb-4">
               Choose Your Access
             </h2>
-            <p className="text-lg text-slate-600">
+            <p className="text-base sm:text-lg text-slate-600">
               Select how you'd like to use the Visitor Management System
             </p>
           </div>
 
           {/* Role Selection Cards */}
-          <div className="grid md:grid-cols-2 gap-6 lg:gap-8 mb-16">
+          <div className="grid md:grid-cols-2 gap-6 lg:gap-8 mb-16 sm:mb-20">
             {cardsData.map((card) => (
               <RoleCard
                 key={card.id}
@@ -170,44 +167,44 @@ export default function LandingPage() {
           </div>
 
           {/* Trust Section with Red-Blue Stripe Accent */}
-          <div className="bg-gray-50 border border-gray-200 rounded-2xl p-8 relative overflow-hidden shadow-md">
+          <div className="card-base card-hover p-8 sm:p-10 relative overflow-hidden mb-12 sm:mb-16">
             {/* Stripe accent on left */}
-            <div className="absolute left-0 top-0 bottom-0 w-1 bg-gradient-to-b from-red-500 via-purple-500 to-blue-500" />
+            <div className="absolute left-0 top-0 bottom-0 w-1.5 bg-gradient-to-b from-red-500 via-purple-500 to-blue-500" />
 
-            <h3 className="text-slate-900 font-semibold mb-6 text-lg">
+            <h3 className="text-slate-900 font-semibold mb-8 text-lg sm:text-xl">
               Why teams love VMS 💙
             </h3>
-            <div className="grid sm:grid-cols-3 gap-6 text-sm">
+            <div className="grid sm:grid-cols-3 gap-6 sm:gap-8">
               <div className="flex items-start gap-3">
-                <span className="text-red-500 text-xl flex-shrink-0">✦</span>
+                <span className="text-red-500 text-2xl flex-shrink-0">✦</span>
                 <div>
-                  <p className="font-semibold text-slate-900">Frictionless Check-in</p>
-                  <p className="text-slate-600 text-sm mt-1">Guests in seconds, no paperwork</p>
+                  <p className="font-semibold text-slate-900 text-base">Frictionless Check-in</p>
+                  <p className="text-slate-600 text-sm mt-2">Guests in seconds, no paperwork hassles</p>
                 </div>
               </div>
               <div className="flex items-start gap-3">
-                <span className="text-blue-500 text-xl flex-shrink-0">✦</span>
+                <span className="text-blue-500 text-2xl flex-shrink-0">✦</span>
                 <div>
-                  <p className="font-semibold text-slate-900">Always On</p>
-                  <p className="text-slate-600 text-sm mt-1">Works smoothly, every single day</p>
+                  <p className="font-semibold text-slate-900 text-base">Always On</p>
+                  <p className="text-slate-600 text-sm mt-2">Works smoothly, every single day</p>
                 </div>
               </div>
               <div className="flex items-start gap-3">
-                <span className="text-red-400 text-xl flex-shrink-0">✦</span>
+                <span className="text-red-400 text-2xl flex-shrink-0">✦</span>
                 <div>
-                  <p className="font-semibold text-slate-900">Trusted & Safe</p>
-                  <p className="text-slate-600 text-sm mt-1">Built by real people, not hype</p>
+                  <p className="font-semibold text-slate-900 text-base">Trusted & Safe</p>
+                  <p className="text-slate-600 text-sm mt-2">Built by real people, not hype</p>
                 </div>
               </div>
             </div>
           </div>
 
           {/* Footer Section */}
-          <div className="text-center border-t border-gray-300 pt-12 mt-16">
-            <p className="text-slate-700 mb-3">
-              Questions? <a href="#" className="text-red-600 hover:text-red-700 font-semibold transition-colors">Reach out to us</a> — we're here to help
+          <div className="text-center border-t border-gray-200 pt-12 sm:pt-14">
+            <p className="text-slate-700 mb-3 text-sm sm:text-base">
+              Questions? <a href="#" className="text-red-600 hover:text-red-700 font-semibold transition-colors duration-250">Reach out to us</a> — we're here to help
             </p>
-            <p className="text-xs text-slate-500">Made with care for real teams</p>
+            <p className="text-xs text-slate-500">Made with care for teams of all sizes</p>
           </div>
         </div>
       </section>
@@ -215,10 +212,6 @@ export default function LandingPage() {
   );
 }
 
-/**
- * Memoized Role Card Component
- * Prevents unnecessary re-renders and handles click errors gracefully
- */
 const RoleCard = ({ card, isDisabled }) => {
   const [isHovered, setIsHovered] = useState(false);
 
@@ -241,18 +234,14 @@ const RoleCard = ({ card, isDisabled }) => {
   // Color mapping
   const colorMap = {
     red: {
-      border: 'hover:border-red-400',
-      gradient: 'from-red-100/40 to-transparent',
-      badge: 'bg-red-100 text-red-700 border-red-300',
+      border: 'hover:border-red-300',
       icon: 'text-red-600',
-      cta: 'bg-red-600 hover:bg-red-700 text-white',
+      accent: 'from-red-500 to-red-600',
     },
     blue: {
-      border: 'hover:border-blue-400',
-      gradient: 'from-blue-100/40 to-transparent',
-      badge: 'bg-blue-100 text-blue-700 border-blue-300',
+      border: 'hover:border-blue-300',
       icon: 'text-blue-600',
-      cta: 'bg-blue-600 hover:bg-blue-700 text-white',
+      accent: 'from-blue-500 to-blue-600',
     }
   };
 
@@ -266,28 +255,28 @@ const RoleCard = ({ card, isDisabled }) => {
       onMouseLeave={() => setIsHovered(false)}
       disabled={isDisabled}
       aria-label={card.ariaLabel}
-      className={`group relative w-full text-left bg-white border border-gray-300 ${colors.border} rounded-2xl shadow-md hover:shadow-lg transition-all duration-300 p-8 sm:p-10 cursor-pointer overflow-hidden disabled:opacity-50 disabled:cursor-not-allowed`}
+      className={`group relative w-full text-left card-base card-hover p-8 sm:p-10 cursor-pointer overflow-hidden disabled:opacity-50 disabled:cursor-not-allowed ${colors.border}`}
     >
-      {/* Top Stripe Accent */}
-      <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-red-500 to-blue-500 opacity-60 group-hover:opacity-100 transition-opacity duration-300" />
+      {/* Top Accent Stripe */}
+      <div className={`absolute top-0 left-0 right-0 h-1 bg-gradient-to-r ${colors.accent} opacity-75 group-hover:opacity-100 transition-opacity duration-300`} />
       
-      {/* Gradient Overlay on Hover */}
-      <div className={`absolute inset-0 bg-gradient-to-br ${colors.gradient} opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none`} />
+      {/* Hover Background Glow */}
+      <div className="absolute inset-0 bg-gradient-to-br from-slate-50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none" />
 
       {/* Content */}
       <div className="relative z-10">
         {/* Icon */}
-        <div className={`text-6xl sm:text-7xl mb-6 transform group-hover:scale-110 transition-transform duration-300 ${colors.icon}`}>
+        <div className={`text-6xl sm:text-7xl mb-6 transform group-hover:scale-110 transition-transform duration-300 origin-left`}>
           {card.icon}
         </div>
 
         {/* Title */}
-        <h2 className="text-3xl sm:text-4xl font-semibold text-slate-900 mb-3 group-hover:text-slate-700 transition-colors">
+        <h2 className="text-2xl sm:text-3xl font-bold text-slate-900 mb-3 group-hover:text-slate-700 transition-colors duration-250">
           {card.title}
         </h2>
 
         {/* Description */}
-        <p className="text-slate-700 mb-6 leading-relaxed text-base sm:text-lg">
+        <p className="text-slate-600 mb-6 leading-relaxed text-base sm:text-lg">
           {card.description}
         </p>
 
@@ -296,10 +285,10 @@ const RoleCard = ({ card, isDisabled }) => {
           {card.features.map((feature, idx) => (
             <div
               key={idx}
-              className="flex items-center gap-3 group-hover:translate-x-2 transition-transform duration-200"
+              className="flex items-center gap-3 group-hover:translate-x-2 transition-transform duration-250"
             >
               <span className={`font-semibold flex-shrink-0 ${colors.icon}`}>→</span>
-              <p>{feature}</p>
+              <p className="font-medium">{feature}</p>
             </div>
           ))}
         </div>
@@ -310,9 +299,10 @@ const RoleCard = ({ card, isDisabled }) => {
             e.stopPropagation();
             handleCardClick();
           }}
-          className={`inline-block px-6 py-3 ${colors.cta} rounded-lg font-semibold transition-all duration-200 border border-transparent hover:shadow-md`}
+          className={`inline-flex items-center gap-2 px-6 py-3 bg-gradient-to-r ${colors.accent} text-white rounded-lg font-semibold transition-all duration-250 hover:shadow-lg hover:scale-105 active:scale-95`}
         >
-          {card.cta} <span className="ml-2">→</span>
+          {card.cta}
+          <span className="text-lg">→</span>
         </button>
       </div>
     </button>

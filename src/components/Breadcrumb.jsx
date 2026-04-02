@@ -20,20 +20,20 @@ export default function Breadcrumb() {
   ];
 
   return (
-    <nav className="bg-white border-b border-gray-200 shadow-sm">
+    <nav className="bg-white border-b border-gray-100 shadow-sm-light">
       <div className="max-w-7xl mx-auto px-4 py-3">
         <div className="flex items-center gap-2 text-sm">
           {breadcrumbItems.map((item, index) => (
             <div key={item.href} className="flex items-center gap-2">
-              {index > 0 && <span className="text-red-500 font-semibold">/</span>}
+              {index > 0 && <span className="text-gray-400 font-light">/</span>}
               {index === breadcrumbItems.length - 1 ? (
-                <span className="font-semibold text-slate-900 bg-red-50 px-3 py-1 rounded-full">
+                <span className="font-semibold text-slate-900 bg-red-50 px-3 py-1.5 rounded-full">
                   {item.label}
                 </span>
               ) : (
                 <Link
                   to={item.href}
-                  className="text-red-600 hover:text-red-700 transition-colors font-medium"
+                  className="text-red-600 hover:text-red-700 transition-colors duration-250 font-medium"
                 >
                   {item.label}
                 </Link>
