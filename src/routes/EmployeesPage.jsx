@@ -9,6 +9,7 @@ export default function EmployeesPage() {
   const { showToast } = useToast();
   const [showForm, setShowForm] = useState(false);
   const [editingId, setEditingId] = useState(null);
+  const [isSaving, setIsSaving] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
   const [formData, setFormData] = useState({
     name: '',
@@ -19,6 +20,17 @@ export default function EmployeesPage() {
   });
 
   const [errors, setErrors] = useState({});
+
+  const emptyForm = useMemo(
+    () => ({
+      name: '',
+      emailId: '',
+      mobileNumber: '',
+      department: '',
+      locationId: '',
+    }),
+    [],
+  );
 
   const filteredEmployees = useMemo(() => {
     return employees.filter((emp) =>
@@ -45,6 +57,17 @@ export default function EmployeesPage() {
     return newErrors;
   };
 
+  const resetForm = useCallback(() => {
+    setFormData(emptyForm);
+    setErrors({});
+    setEditingId(null);
+  }, [emptyForm]);
+
+  const handleAddClick = useCallback(() => {
+    resetForm();
+    setShowForm(true);
+  }, [resetForm]);
+
   const handleSubmit = useCallback(
     async (e) => {
       e.preventDefault();
@@ -55,23 +78,33 @@ export default function EmployeesPage() {
         return;
       }
 
+      const payload = {
+        name: formData.name.trim(),
+        emailId: formData.emailId.trim(),
+        mobileNumber: formData.mobileNumber.trim(),
+        department: formData.department.trim(),
+        locationId: formData.locationId,
+      };
+
+      setIsSaving(true);
       try {
         if (editingId) {
-          await updateEmployee(editingId, formData);
+          await updateEmployee(editingId, payload);
           showToast('Employee updated successfully!', 'success');
-          setEditingId(null);
         } else {
-          await addEmployee(formData);
+          await addEmployee(payload);
           showToast('Employee added successfully!', 'success');
         }
 
-        setFormData({ name: '', emailId: '', mobileNumber: '', department: '', locationId: '' });
+        resetForm();
         setShowForm(false);
       } catch (error) {
         showToast(error.message || 'Unable to save employee right now.', 'error');
+      } finally {
+        setIsSaving(false);
       }
     },
-    [formData, editingId, addEmployee, updateEmployee, showToast],
+    [formData, editingId, addEmployee, updateEmployee, showToast, resetForm],
   );
 
   const handleEdit = useCallback((employee) => {
@@ -99,10 +132,8 @@ export default function EmployeesPage() {
 
   const handleCancel = useCallback(() => {
     setShowForm(false);
-    setEditingId(null);
-    setFormData({ name: '', emailId: '', mobileNumber: '', department: '', locationId: '' });
-    setErrors({});
-  }, []);
+    resetForm();
+  }, [resetForm]);
 
   const getLocationName = useCallback(
     (locationId) => locations.find((l) => l.id === locationId)?.name || 'Unknown',
@@ -121,7 +152,7 @@ export default function EmployeesPage() {
                 <h1 className="text-4xl font-bold text-slate-900 mb-2">Employees</h1>
                 <p className="text-slate-600">Manage staff members and assignments</p>
               </div>
-              <Button onClick={() => setShowForm(true)} variant="primary">
+              <Button onClick={handleAddClick} variant="primary">
                 + Add Employee
               </Button>
             </div>
@@ -233,10 +264,10 @@ export default function EmployeesPage() {
                 </div>
 
                 <div className="flex gap-3">
-                  <Button type="submit" variant="primary">
-                    {editingId ? 'Update Employee' : 'Add Employee'}
+                  <Button type="submit" variant="primary" disabled={isSaving}>
+                    {isSaving ? 'Saving...' : editingId ? 'Update Employee' : 'Add Employee'}
                   </Button>
-                  <Button type="button" variant="outline" onClick={handleCancel}>
+                  <Button type="button" variant="outline" onClick={handleCancel} disabled={isSaving}>
                     Cancel
                   </Button>
                 </div>

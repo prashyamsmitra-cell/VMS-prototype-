@@ -7,6 +7,7 @@ const VMSContext = createContext();
 function normalizeLocation(location) {
   return {
     ...location,
+    id: String(location.id),
     capacity: Number(location.capacity) || 0,
     qrCode: location.qrCode || location.qr_data || '',
   };
@@ -15,9 +16,10 @@ function normalizeLocation(location) {
 function normalizeEmployee(employee) {
   return {
     ...employee,
+    id: String(employee.id),
     emailId: employee.emailId || employee.email_id || '',
     mobileNumber: employee.mobileNumber || employee.mobile_number || '',
-    locationId: employee.locationId || employee.location_id || '',
+    locationId: String(employee.locationId || employee.location_id || ''),
   };
 }
 
@@ -76,14 +78,14 @@ export function VMSProvider({ children }) {
     const updatedLocation = await locationsApi.update(id, updates);
     const normalizedLocation = normalizeLocation(updatedLocation);
     setLocations((prev) => prev.map((location) => (
-      location.id === id ? normalizedLocation : location
+      String(location.id) === String(id) ? normalizedLocation : location
     )));
     return normalizedLocation;
   }, []);
 
   const deleteLocation = useCallback(async (id) => {
     await locationsApi.delete(id);
-    setLocations((prev) => prev.filter((location) => location.id !== id));
+    setLocations((prev) => prev.filter((location) => String(location.id) !== String(id)));
   }, []);
 
   const addEmployee = useCallback(async (employee) => {
@@ -97,14 +99,14 @@ export function VMSProvider({ children }) {
     const updatedEmployee = await employeesApi.update(id, updates);
     const normalizedEmployee = normalizeEmployee(updatedEmployee);
     setEmployees((prev) => prev.map((employee) => (
-      employee.id === id ? normalizedEmployee : employee
+      String(employee.id) === String(id) ? normalizedEmployee : employee
     )));
     return normalizedEmployee;
   }, []);
 
   const deleteEmployee = useCallback(async (id) => {
     await employeesApi.delete(id);
-    setEmployees((prev) => prev.filter((employee) => employee.id !== id));
+    setEmployees((prev) => prev.filter((employee) => String(employee.id) !== String(id)));
   }, []);
 
   const value = useMemo(

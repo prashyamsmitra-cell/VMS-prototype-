@@ -49,9 +49,25 @@ export default function VisitorOfficeSelect() {
     setSelectedCity('');
   };
 
+  const handleResetSelection = useCallback(() => {
+    setSelectedCountry('');
+    setSelectedCity('');
+  }, []);
+
   return (
     <div className="min-h-screen bg-gray-50">
       <div className="max-w-6xl mx-auto px-4 py-12">
+        <div className="mb-6 flex flex-wrap items-center justify-between gap-3">
+          <Button type="button" variant="ghost" onClick={() => navigate('/')}>
+            Back to Home
+          </Button>
+          {selectedCountry && (
+            <Button type="button" variant="outline" onClick={handleResetSelection}>
+              Change Country
+            </Button>
+          )}
+        </div>
+
         <div className="text-center mb-12">
           <h1 className="text-4xl sm:text-5xl font-bold text-slate-900 mb-3">
             Select Your Office
@@ -114,9 +130,21 @@ export default function VisitorOfficeSelect() {
           </div>
 
           {selectedCountry && (
-            <div className="mt-4 p-3 bg-blue-50 border border-blue-200 rounded-lg text-sm text-blue-700">
-              Found <span className="font-semibold">{filteredLocations.length}</span> office{filteredLocations.length !== 1 ? 's' : ''}
-              {selectedCity && ` in ${selectedCity}`}
+            <div className="mt-4 flex flex-wrap items-center justify-between gap-3 rounded-lg border border-blue-200 bg-blue-50 p-3 text-sm text-blue-700">
+              <span>
+                Found <span className="font-semibold">{filteredLocations.length}</span> office{filteredLocations.length !== 1 ? 's' : ''}
+                {selectedCity && ` in ${selectedCity}`}
+              </span>
+              <div className="flex flex-wrap gap-2">
+                {selectedCity && (
+                  <Button type="button" variant="ghost" size="sm" onClick={() => setSelectedCity('')}>
+                    Back to Cities
+                  </Button>
+                )}
+                <Button type="button" variant="ghost" size="sm" onClick={handleResetSelection}>
+                  Start Over
+                </Button>
+              </div>
             </div>
           )}
         </div>

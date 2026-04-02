@@ -7,10 +7,9 @@ export default function Header() {
   const navigate = useNavigate();
   const { isLoggedIn, logout, user } = useAuth();
 
-  // Don't show header on landing page or authentication pages
-  const hideHeader = ['/'].includes(location.pathname) ||
-    location.pathname.includes('/admin-login') ||
-    location.pathname.includes('/visitor-office-select');
+  const hideHeader = ['/'].includes(location.pathname)
+    || location.pathname.includes('/admin-login')
+    || location.pathname.includes('/visitor-office-select');
 
   if (hideHeader) {
     return null;
@@ -25,46 +24,44 @@ export default function Header() {
 
   return (
     <header className="sticky top-0 z-40 bg-white border-b border-gray-200 shadow-sm">
-      {/* Status Bar */}
       <div className="bg-green-50 border-b border-green-200 px-4 py-2 text-center">
-        <p className="text-xs font-semibold text-green-700 flex items-center justify-center gap-2">
-          <span className="w-2 h-2 bg-green-500 rounded-full animate-pulse" />
+        <p className="flex items-center justify-center gap-2 text-xs font-semibold text-green-700">
+          <span className="h-2 w-2 animate-pulse rounded-full bg-green-500" />
           System Operational
         </p>
       </div>
 
-      {/* Main Header */}
-      <nav className="max-w-7xl mx-auto flex items-center justify-between px-4 py-4">
-        {/* Logo */}
-        <Link to="/" className="font-bold text-2xl bg-gradient-to-r from-red-600 to-blue-600 bg-clip-text text-transparent hover:opacity-80 transition-opacity">
+      <nav className="mx-auto flex max-w-7xl items-center justify-between px-4 py-4">
+        <Link
+          to="/"
+          className="bg-gradient-to-r from-red-600 to-blue-600 bg-clip-text text-2xl font-bold text-transparent transition-opacity hover:opacity-80"
+        >
           VMS
         </Link>
 
-        {/* Navigation */}
-        <div className="hidden sm:flex items-center gap-4">
+        <div className="hidden items-center gap-4 sm:flex">
           {isAdminRoute && isLoggedIn ? (
             <>
-              <Link to="/admin" className="text-slate-700 hover:text-red-600 transition-colors font-medium">
+              <Link to="/admin" className="font-medium text-slate-700 transition-colors hover:text-red-600">
                 Dashboard
               </Link>
-              <Link to="/admin/locations" className="text-slate-700 hover:text-red-600 transition-colors font-medium">
+              <Link to="/admin/locations" className="font-medium text-slate-700 transition-colors hover:text-red-600">
                 Locations
               </Link>
-              <Link to="/admin/employees" className="text-slate-700 hover:text-red-600 transition-colors font-medium">
+              <Link to="/admin/employees" className="font-medium text-slate-700 transition-colors hover:text-red-600">
                 Employees
               </Link>
-              <Link to="/admin/login-history" className="text-slate-700 hover:text-red-600 transition-colors font-medium">
+              <Link to="/admin/login-history" className="font-medium text-slate-700 transition-colors hover:text-red-600">
                 History
               </Link>
             </>
           ) : null}
         </div>
 
-        {/* Auth Actions */}
         <div className="flex items-center gap-3">
           {isLoggedIn ? (
             <>
-              <span className="hidden sm:inline text-sm text-slate-600 font-medium">
+              <span className="hidden text-sm font-medium text-slate-600 sm:inline">
                 {user?.type === 'admin' ? `${user.name} (Admin)` : 'Visitor'}
               </span>
               <Button variant="outline" size="sm" onClick={handleLogout}>
@@ -72,15 +69,18 @@ export default function Header() {
               </Button>
             </>
           ) : location.pathname.includes('/location/') ? (
-            <Link to="/visitor-office-select" className="text-red-600 hover:text-red-700 font-semibold transition-colors">
-              ← Back
+            <Link to="/visitor-office-select" className="font-semibold text-red-600 transition-colors hover:text-red-700">
+              Back
             </Link>
           ) : null}
         </div>
 
-        {/* Mobile Menu Icon */}
-        <div className="sm:hidden text-xl">
-          {isLoggedIn && <span className="text-xs font-bold text-red-600">{user?.type === 'admin' ? '⚙️' : '👤'}</span>}
+        <div className="text-xl sm:hidden">
+          {isLoggedIn && (
+            <span className="text-xs font-bold text-red-600">
+              {user?.type === 'admin' ? 'Admin' : 'Visitor'}
+            </span>
+          )}
         </div>
       </nav>
     </header>
